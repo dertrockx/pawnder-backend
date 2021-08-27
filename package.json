@@ -1,0 +1,27 @@
+{
+	"name": "pawnder-backend",
+	"version": "0.0.1",
+	"description": "Awesome project developed with TypeORM.",
+	"devDependencies": {
+		"@types/node": "^8.0.29",
+		"ts-node": "3.3.0",
+		"typescript": "3.3.3333"
+	},
+	"dependencies": {
+		"@types/express": "^4.17.13",
+		"body-parser": "^1.18.1",
+		"express": "^4.15.4",
+		"morgan": "^1.10.0",
+		"mysql": "^2.14.1",
+		"reflect-metadata": "^0.1.10",
+		"tsconfig-paths": "^3.11.0",
+		"typeorm": "0.2.37"
+	},
+	"scripts": {
+		"start": "ts-node -r tsconfig-paths/register src/index.ts",
+		"dev:server": "nodemon --watch './**/*.ts' --exec 'ts-node -r tsconfig-paths/register' src/index.ts",
+		"typeorm": "ts-node -r tsconfig-paths/register ./node_modules/.bin/typeorm",
+		"schema:sync": "yarn typeorm schema:sync",
+		"docker": "docker exec -it pawnder bash"
+	}
+}
