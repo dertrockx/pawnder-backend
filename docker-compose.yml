@@ -1,6 +1,6 @@
 version: "3"
 services:
-  mysql:
+  pawnder-db:
     image: "mysql:5.7.10"
     ports:
       - "3306:3306"

@@ -3,7 +3,9 @@
 	"version": "0.0.1",
 	"description": "Awesome project developed with TypeORM.",
 	"devDependencies": {
+		"@types/faker": "^5.5.8",
 		"@types/node": "^8.0.29",
+		"faker": "^5.5.3",
 		"ts-node": "3.3.0",
 		"typescript": "3.3.3333"
 	},
@@ -19,9 +21,10 @@
 	},
 	"scripts": {
 		"start": "ts-node -r tsconfig-paths/register src/index.ts",
+		"seed": "ts-node -r tsconfig-paths/register src/seed.ts",
 		"dev:server": "nodemon --watch './**/*.ts' --exec 'ts-node -r tsconfig-paths/register' src/index.ts",
 		"typeorm": "ts-node -r tsconfig-paths/register ./node_modules/.bin/typeorm",
 		"schema:sync": "yarn typeorm schema:sync",
-		"docker": "docker exec -it pawnder bash"
+		"docker": "docker exec -it pawnder-db bash"
 	}
 }

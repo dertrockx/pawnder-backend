@@ -14,7 +14,8 @@
 			"@handlers": ["handlers/"],
 			"@models": ["models/"],
 			"@decorators": ["decorators/"],
-			"@tests": ["tests/"]
+			"@tests": ["tests/"],
+			"@constants": ["constants/"]
 		}
 	}
 }
