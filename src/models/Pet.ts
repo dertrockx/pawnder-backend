@@ -1,7 +1,8 @@
 import { DefaultEntity } from "@decorators";
 import { Institution } from "./Institution";
-import { Entity, JoinColumn, ManyToOne, Column } from "typeorm";
+import { Entity, JoinColumn, ManyToOne, Column, OneToMany } from "typeorm";
 import { SexEnum, ActionEnum, AnimalTypeEnum } from "@constants";
+import { Photo } from "./Photo";
 
 @Entity()
 export class Pet extends DefaultEntity {
@@ -33,9 +34,6 @@ export class Pet extends DefaultEntity {
 	@Column("longtext")
 	medicalHistory: string;
 
-	@Column()
-	photoUrl: string;
-
 	@Column({
 		type: "enum",
 		enum: SexEnum,
@@ -56,4 +54,7 @@ export class Pet extends DefaultEntity {
 	@ManyToOne(() => Institution, (institution) => institution.pets)
 	@JoinColumn({ name: "institutionId" })
 	institution: Institution;
+
+	@OneToMany(() => Photo, (photo) => photo.pet)
+	photos: Photo[];
 }

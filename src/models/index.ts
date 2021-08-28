@@ -6,3 +6,4 @@ export * from "./SocialMediaLink";
 export * from "./Story";
 export * from "./Tag";
 export * from "./UserIgnoredPet";
+export * from "./Photo";
