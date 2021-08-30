@@ -1,6 +1,7 @@
 import { Request, Response, Router } from "express";
 import { InstitutionHandler } from "@handlers";
 import { Institution } from "models";
+import { errors } from "@constants";
 
 export const InstitutionEndpoint = Router();
 
@@ -49,7 +50,7 @@ const getInstitutions = async (
 		return res.status(500).json({ msg: "Server error. Please contact admin" });
 	}
 };
-
+// TODO: move logic back to handlers
 const getSingleInstitution = async (req: Request, res: Response) => {
 	const { id } = req.params;
 	try {
@@ -66,45 +67,41 @@ const getSingleInstitution = async (req: Request, res: Response) => {
 };
 
 // TODO: still need to validate and sanitize data sent to this endpoint
+// TODO: move logic back to handlers
 const updateInstitution = async (
 	req: Request<any, any, InstitutionBody, any>,
 	res: Response
 ) => {
 	const { id } = req.params;
-
+	const handler = new InstitutionHandler();
 	try {
-		const institution = await Institution.findOne(id);
-
-		if (!institution)
-			return res.status(404).json({ msg: "Institution not found" });
-
-		Object.assign(institution, { ...req.body });
-
-		await institution.save();
+		const institution = await handler.update(id, req.body);
 
 		return res.json({ institution });
 	} catch (err) {
 		console.log(err);
+		if (err.message === errors.NOT_FOUND)
+			return res.status(404).json({ msg: "Institution not found" });
+
 		return res.status(500).json({ msg: "Server error. Please contact admin" });
 	}
 };
-
+// TODO: move logic back to handlers
 const deleteInstitution = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
+	const handler = new InstitutionHandler();
 	try {
-		const institution = await Institution.findOne(id);
-
-		if (!institution)
-			return res.status(404).json({ msg: "Institution not found" });
-
-		await institution.softRemove();
-
+		const institution = await handler.delete(id);
+		console.log(institution);
 		return res.json({
 			msg: `Institution '(${id}):${institution.name}' successfully deleted`,
 		});
 	} catch (err) {
 		console.log(err);
+		if (err.message === errors.NOT_FOUND)
+			return res.status(404).json({ msg: "Institution not found" });
+
 		return res.status(500).json({ msg: "Server error. Please contact admin" });
 	}
 };
