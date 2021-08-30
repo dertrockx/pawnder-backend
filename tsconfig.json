@@ -4,6 +4,7 @@
 		"target": "es5",
 		"module": "commonjs",
 		"moduleResolution": "node",
+		"esModuleInterop": true,
 		"outDir": "./build",
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
@@ -15,7 +16,8 @@
 			"@models": ["models/"],
 			"@decorators": ["decorators/"],
 			"@tests": ["tests/"],
-			"@constants": ["constants/"]
+			"@constants": ["constants/"],
+			"@utils": ["utils/"]
 		}
 	}
 }

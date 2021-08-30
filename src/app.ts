@@ -1,5 +1,5 @@
-import * as express from "express";
-import * as logger from "morgan";
+import express from "express";
+import morgan from "morgan";
 import { router } from "./routes";
 
 export class App {
@@ -19,7 +19,7 @@ export class App {
 	private configureServer = (): void => {
 		this.app.use(express.json());
 		this.app.use(express.urlencoded({ extended: true }));
-		this.app.use(logger("dev"));
+		this.app.use(morgan("dev"));
 	};
 
 	private configureRoutes = (): void => {
