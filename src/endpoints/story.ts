@@ -3,6 +3,7 @@ import { StoryHandler } from "@handlers";
 import multer from "multer";
 
 import { imageFilter, files } from "@utils";
+import { errors } from "@constants";
 
 const storage = multer.diskStorage({
 	filename: (req, file, cb) => {
@@ -49,10 +50,13 @@ const getStory = async (req: Request, res: Response) => {
 	const handler = new StoryHandler();
 	try {
 		const story = await handler.getStory(parseInt(id));
-		if (!story) return res.status(404).json({ msg: `Story not found` });
 
 		return res.json({ story });
-	} catch (err) {}
+	} catch (err) {
+		console.log(err);
+		if (err.message === errors.NOT_FOUND)
+			return res.status(404).json({ msg: "Story not found" });
+	}
 };
 
 const createStory = async (
@@ -75,7 +79,6 @@ const createStory = async (
 		story = await handler.setHeadlineUrl(story.id, result.secure_url);
 		return res.json({ story });
 	} catch (err) {
-		console.log(err);
 		res.status(500).json({ msg: "Server error. Please contact admin" });
 	}
 };
@@ -107,6 +110,8 @@ const updateStory = async (
 		return res.json({ story });
 	} catch (err) {
 		console.log(err);
+		if (err.message === errors.NOT_FOUND)
+			return res.status(404).json({ msg: "Story not found" });
 		return res.status(500).json({ msg: "Server error. Please contact admin" });
 	}
 };
@@ -119,8 +124,11 @@ const deleteStory = async (req: Request, res: Response) => {
 		return res.json({
 			msg: `Successfully deleted story with ID ${id}`,
 		});
-	} catch (error) {
-		console.log(error);
+	} catch (err) {
+		console.log(err);
+		if (err.message === errors.NOT_FOUND)
+			return res.status(404).json({ msg: "Story not found" });
+
 		return res.status(500).json({ msg: "Server error. Please contact admin." });
 	}
 };

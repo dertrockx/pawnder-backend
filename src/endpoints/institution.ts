@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
 import { InstitutionHandler } from "@handlers";
-import { Institution } from "models";
+import { Institution } from "@models";
 import { errors } from "@constants";
 
 export const InstitutionEndpoint = Router();

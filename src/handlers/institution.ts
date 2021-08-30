@@ -1,6 +1,6 @@
-import { getManager, In } from "typeorm";
-import { Institution } from "models";
-import { distanceToDegConverter } from "utils";
+import { getManager } from "typeorm";
+import { Institution } from "@models";
+import { distanceToDegConverter } from "@utils";
 import { errors } from "@constants";
 // SQL Query
 // "SQRT( POWER(locationLat - :centerLat, 2) + POWER(locationLong - :centerLong, 2) ) < :radius",

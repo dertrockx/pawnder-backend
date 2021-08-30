@@ -1,5 +1,5 @@
 import { Story } from "@models";
-
+import { errors } from "@constants";
 interface StoryBody {
 	title?: string;
 	body?: string;
@@ -14,6 +14,7 @@ export class StoryHandler {
 
 	async getStory(id: number): Promise<Story> {
 		const story = await Story.findOne(id);
+		if (!story) throw new Error(errors.NOT_FOUND);
 		return story;
 	}
 
@@ -39,6 +40,7 @@ export class StoryHandler {
 
 	async update(id: number, options: StoryBody): Promise<Story> {
 		const story = await Story.findOne(id);
+		if (!story) throw new Error(errors.NOT_FOUND);
 		Object.assign(story, { ...options });
 		await story.save();
 		return story;
@@ -46,6 +48,7 @@ export class StoryHandler {
 
 	async delete(id: number): Promise<boolean> {
 		const story = await Story.findOne(id);
+		if (!story) throw new Error(errors.NOT_FOUND);
 		await story.softRemove();
 		return true;
 	}
