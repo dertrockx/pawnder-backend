@@ -1,5 +1,8 @@
 import { App } from "./app";
 import { connection } from "./config/database";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 
 connection()
 	.then(() => {
@@ -8,6 +11,7 @@ connection()
 
 		server.start();
 	})
-	.catch(({ code, sqlMessage }) => {
-		console.log(`Failer to connect to database: ${sqlMessage} {${code}}`);
+	.catch((err) => {
+		console.log(`Failed to connect to database`);
+		console.log(err);
 	});
