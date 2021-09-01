@@ -50,24 +50,24 @@ const getInstitutions = async (
 		return res.status(500).json({ msg: "Server error. Please contact admin" });
 	}
 };
-// TODO: move logic back to handlers
+
 const getSingleInstitution = async (req: Request, res: Response) => {
 	const { id } = req.params;
+	const handler = new InstitutionHandler();
 	try {
-		const institution = await Institution.findOne(id);
-
-		if (!institution)
-			return res.status(404).json({ msg: "Institution not found" });
+		const institution = await handler.getInstitution(id);
 
 		return res.json({ institution });
 	} catch (err) {
 		console.log(err);
+		if (err.message === errors.NOT_FOUND)
+			return res.status(404).json({ msg: "Institution not found" });
 		return res.status(500).json({ msg: "Server error. Please contact admin" });
 	}
 };
 
 // TODO: still need to validate and sanitize data sent to this endpoint
-// TODO: move logic back to handlers
+
 const updateInstitution = async (
 	req: Request<any, any, InstitutionBody, any>,
 	res: Response
@@ -86,14 +86,13 @@ const updateInstitution = async (
 		return res.status(500).json({ msg: "Server error. Please contact admin" });
 	}
 };
-// TODO: move logic back to handlers
+
 const deleteInstitution = async (req: Request, res: Response) => {
 	const { id } = req.params;
 
 	const handler = new InstitutionHandler();
 	try {
 		const institution = await handler.delete(id);
-		console.log(institution);
 		return res.json({
 			msg: `Institution '(${id}):${institution.name}' successfully deleted`,
 		});
