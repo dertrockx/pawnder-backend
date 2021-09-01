@@ -12,4 +12,7 @@ export class SocialMediaLink extends DefaultEntity {
 
 	@Column()
 	url: string;
+
+	@Column()
+	type: string;
 }
