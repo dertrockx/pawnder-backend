@@ -17,13 +17,21 @@ export class DefaultEntity extends BaseEntity {
 	@PrimaryGeneratedColumn()
 	id: number;
 
-	@DeleteDateColumn({ transformer: deleteDateTransformer })
+	@DeleteDateColumn({ select: false, transformer: deleteDateTransformer })
 	deleted: boolean;
 
-	@Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+	@Column({
+		select: false,
+		type: "timestamp",
+		default: () => "CURRENT_TIMESTAMP",
+	})
 	createdAt: Date;
 
-	@Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+	@Column({
+		select: false,
+		type: "timestamp",
+		default: () => "CURRENT_TIMESTAMP",
+	})
 	updatedAt: Date;
 
 	@BeforeInsert()
