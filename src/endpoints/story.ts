@@ -31,13 +31,9 @@ const getStories = async (
 	res: Response
 ) => {
 	const { institutionId } = req.query;
-	if (!institutionId)
-		return res
-			.status(400)
-			.json({ msg: "Please include `institutionId` to url parameters" });
 	const handler = new StoryHandler();
 	try {
-		const stories = await handler.getStories(parseInt(institutionId));
+		const stories = await handler.getStories(institutionId);
 		return res.json({ stories });
 	} catch (err) {
 		console.log(err);
