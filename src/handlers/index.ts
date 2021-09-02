@@ -7,3 +7,4 @@ export * from "./photo";
 export * from "./application";
 export * from "./auth";
 export * from "./ignored";
+export * from "./socialMediaLink";
