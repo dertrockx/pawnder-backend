@@ -61,6 +61,10 @@ describe("TagHandler", () => {
 			// });
 
 			// tags = await tagRepository.save(tags);
+
+			tags = await handler.createTags(1, 
+				tagsText
+			);
 		});
 		it("should create all tags", () => {
 			expect(tags).toHaveLength(5);

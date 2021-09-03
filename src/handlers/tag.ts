@@ -30,6 +30,16 @@ export class TagHandler {
         return tag;
     }
 
+    async createTags(storyId: number, texts: any): Promise<Tag[]> {
+        const tags = texts.map((text) => {
+            const newTag = new Tag();
+            Object.assign(newTag, { storyId, text });
+            newTag.save()
+        });
+
+        return tags;
+    }
+
     async updateTag(id: number | string, options: TagBody): Promise<Tag> {
         const tag = await Tag.findOne(id); 
         if (!tag) throw new Error(errors.NOT_FOUND);
