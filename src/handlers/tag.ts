@@ -38,7 +38,6 @@ export class TagHandler {
         });
 
         await Tag.save(tags);
-        console.log(tags);
         return tags;
     }
 
