@@ -34,9 +34,11 @@ export class TagHandler {
         const tags = texts.map((text) => {
             const newTag = new Tag();
             Object.assign(newTag, { storyId, text });
-            newTag.save()
+            return newTag;
         });
 
+        await Tag.save(tags);
+        console.log(tags);
         return tags;
     }
 
