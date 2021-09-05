@@ -1,3 +1,4 @@
+import { getRepository } from "typeorm";
 import { Story } from "@models";
 import { errors } from "@constants";
 interface StoryBody {
@@ -7,8 +8,12 @@ interface StoryBody {
 }
 
 export class StoryHandler {
-	async getStories(institutionId: number): Promise<Story[]> {
-		const story = await Story.find({ institutionId });
+	async getStories(institutionId?: number | string): Promise<Story[]> {
+		const query = getRepository(Story).createQueryBuilder("story");
+		if (institutionId) {
+			query.where("story.institutionId = :institutionId", { institutionId });
+		}
+		const story = await query.getMany();
 		return story;
 	}
 
