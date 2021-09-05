@@ -26,6 +26,8 @@ export class UserHandler {
 
     async getUser(id: number | string): Promise<User> {
         const user = await User.findOne(id);
+        if (!user) throw new Error(errors.NOT_FOUND);
+
         return user;
     }
 
