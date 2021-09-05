@@ -19,7 +19,7 @@ interface UserBody {
 }
 
 export class UserHandler {
-    async getAllUsers(): Promise<User[]> {
+    async getUsers(): Promise<User[]> {
         const users = await User.find();
         return users;
     }

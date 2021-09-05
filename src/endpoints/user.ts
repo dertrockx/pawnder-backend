@@ -21,11 +21,17 @@ interface UserBody {
     preferredDistance?: number;
 }
 
-const getSingleUser = (req: Request, res: Response) => {
+const getAllUsers = async (req: Request, res: Response) => {
+	const handler = new UserHandler();
+	const users = await handler.getUsers();
+	return res.json({ users });
+}
+
+const getSingleUser = async (req: Request, res: Response) => {
     const { id } = req.params;
     const handler = new UserHandler();
     try {
-        const user = handler.getUser(id);
+        const user = await handler.getUser(id);
         return res.json({ user });
 
 	} catch (err) {
@@ -72,6 +78,7 @@ const deleteUser = async (req: Request, res: Response) => {
 	}
 };
 
-UserEndpoint.get('/:id', getSingleUser);        //api/0.1/user/
+UserEndpoint.get('/', getAllUsers);        //api/0.1/user/
+UserEndpoint.get('/:id', getSingleUser);
 UserEndpoint.put('/:id', updateUser);
 UserEndpoint.delete('/:id', deleteUser);
