@@ -12,16 +12,19 @@
 	"dependencies": {
 		"@types/express": "^4.17.13",
 		"@types/express-fileupload": "^1.1.7",
+		"@types/jest": "^27.0.1",
 		"@types/multer": "^1.4.7",
 		"body-parser": "^1.18.1",
 		"cloudinary": "^1.26.3",
 		"dotenv": "^10.0.0",
 		"express": "^4.15.4",
 		"express-fileupload": "^1.2.1",
+		"jest": "^27.1.0",
 		"morgan": "^1.10.0",
 		"multer": "^1.4.3",
 		"mysql": "^2.14.1",
 		"reflect-metadata": "^0.1.10",
+		"ts-jest": "^27.0.5",
 		"tsconfig-paths": "^3.11.0",
 		"typeorm": "0.2.37"
 	},
@@ -31,6 +34,7 @@
 		"dev:server": "nodemon --watch './**/*.ts' --exec 'ts-node -r tsconfig-paths/register' src/index.ts",
 		"typeorm": "ts-node -r tsconfig-paths/register ./node_modules/.bin/typeorm",
 		"schema:sync": "yarn typeorm schema:sync",
-		"docker": "docker exec -it pawnder-db bash"
+		"docker": "docker exec -it pawnder-db bash",
+		"test": "jest --runInBand --verbose"
 	}
 }

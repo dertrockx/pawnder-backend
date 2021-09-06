@@ -42,6 +42,7 @@ export class InstitutionHandler {
 
 	async getInstitution(id: number | string): Promise<Institution> {
 		const institution = await Institution.findOne(id);
+		if (!institution) throw new Error(errors.NOT_FOUND);
 		return institution;
 	}
 
