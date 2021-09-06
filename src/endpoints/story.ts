@@ -24,6 +24,7 @@ interface StoryBody {
 	title?: string;
 	body?: string;
 	tags?: string;
+	isDraft?: string;
 }
 
 const getStories = async (
@@ -60,14 +61,21 @@ const createStory = async (
 	res: Response
 ) => {
 	console.log(req.file);
-	const { title, body, tags, institutionId } = req.body;
+	// isDraft field is sent as a `string` when sent via multipart/form-data
+	const { title, body, tags, institutionId, isDraft = "true" } = req.body;
+
 	if (!title || !body || !tags || !institutionId)
 		return res.status(400).json({
 			msg: "title, body, tags, and institutionId fields are required in body",
 		});
 	const handler = new StoryHandler();
 	try {
-		let story = await handler.create(parseInt(institutionId), { title, body });
+		let story = await handler.create(parseInt(institutionId), {
+			title,
+			body,
+			// isDraft field is sent as a `string` when sent via multipart/form-data
+			isDraft: isDraft === "true",
+		});
 		const result = await files.uploader.upload(req.file.path, {
 			folder: `/institution/${institutionId}/stories/${story.id}`,
 			public_id: "headlinePhoto",
@@ -75,6 +83,7 @@ const createStory = async (
 		story = await handler.setHeadlineUrl(story.id, result.secure_url);
 		return res.json({ story });
 	} catch (err) {
+		console.log(err);
 		res.status(500).json({ msg: "Server error. Please contact admin" });
 	}
 };
@@ -83,7 +92,7 @@ const updateStory = async (
 	req: Request<any, any, StoryBody, { publish: string }>,
 	res: Response
 ) => {
-	const { body } = req;
+	let { isDraft, ...body } = req.body;
 	const { id } = req.params;
 
 	const { publish } = req.query;

@@ -26,7 +26,6 @@ export class StoryHandler {
 	async create(institutionId: number, options: StoryBody): Promise<Story> {
 		const story = new Story();
 		Object.assign(story, {
-			isDraft: true,
 			headlineUrl: "",
 			institutionId,
 			...options,
