@@ -23,8 +23,10 @@ export class StoryHandler {
 		if (institutionId) {
 			query.where("story.institutionId = :institutionId", { institutionId });
 		}
-		if (published)
+		if (published === 0 || published === 1) {
+			console.log(published);
 			query.andWhere("story.isDraft = :isDraft", { isDraft: !published });
+		}
 
 		stories = await query.getMany();
 		return stories;
