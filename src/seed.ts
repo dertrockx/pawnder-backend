@@ -11,6 +11,7 @@ import {
 	internet,
 	date,
 	company,
+	lorem,
 } from "faker";
 
 const getEntryFromEnum = (anyEnum: any) =>
@@ -54,6 +55,7 @@ const generateDummyInstitution = async (): Promise<Institution> => {
 		locationLong: address.longitude(),
 		email: internet.email(instiName, ""),
 		contactNumber: phone.phoneNumber("+639#########"),
+		description: lorem.sentences(3),
 	});
 	await institution.save();
 	return institution;

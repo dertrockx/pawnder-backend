@@ -15,8 +15,9 @@ const upload = multer({ storage, fileFilter: imageFilter });
 
 export const StoryEndpoint = Router();
 
-interface InstiIdQuery {
-	institutionId: string;
+interface ListQuery {
+	institutionId?: string;
+	published?: string;
 }
 
 interface StoryBody {
@@ -28,13 +29,29 @@ interface StoryBody {
 }
 
 const getStories = async (
-	req: Request<any, any, any, InstiIdQuery>,
+	req: Request<any, any, any, ListQuery>,
 	res: Response
 ) => {
-	const { institutionId } = req.query;
+	let { institutionId, published = undefined } = req.query;
+	const options = {};
+	if (published) {
+		const parsed = parseInt(published);
+		if (isNaN(parsed))
+			return res.status(400).json({
+				msg: "`published` field in url parameters should be a whole number",
+			});
+		if (parsed < 0 || parsed > 1)
+			return res.status(400).json({
+				msg: "`published` field in url parameters only accepts 1 or 0 as value",
+			});
+		Object.assign(options, { published: parsed });
+	}
+
+	if (institutionId) Object.assign(options, { institutionId });
+
 	const handler = new StoryHandler();
 	try {
-		const stories = await handler.getStories(institutionId);
+		const stories = await handler.getStories(options);
 		return res.json({ stories });
 	} catch (err) {
 		console.log(err);
@@ -81,7 +98,7 @@ const createStory = async (
 			public_id: "headlinePhoto",
 		});
 		story = await handler.setHeadlineUrl(story.id, result.secure_url);
-		return res.json({ story });
+		return res.status(201).json({ story });
 	} catch (err) {
 		console.log(err);
 		res.status(500).json({ msg: "Server error. Please contact admin" });
