@@ -21,6 +21,9 @@ export class Institution extends DefaultEntity {
 	@Column()
 	contactNumber: string;
 
+	@Column()
+	description: string;
+
 	@OneToMany(() => Pet, (pet) => pet.institution)
 	pets: Pet[];
 

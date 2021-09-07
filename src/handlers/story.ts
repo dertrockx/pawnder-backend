@@ -1,3 +1,4 @@
+import { getRepository } from "typeorm";
 import { Story } from "@models";
 import { errors } from "@constants";
 interface StoryBody {
@@ -7,9 +8,28 @@ interface StoryBody {
 }
 
 export class StoryHandler {
-	async getStories(institutionId: number): Promise<Story[]> {
-		const story = await Story.find({ institutionId });
-		return story;
+	async getStories(options?: {
+		institutionId?: number | string;
+		published?: number;
+	}): Promise<Story[]> {
+		const query = getRepository(Story).createQueryBuilder("story");
+		let stories: Story[] = [];
+		if (!options) {
+			stories = await query.getMany();
+			return stories;
+		}
+
+		const { published, institutionId } = options;
+		if (institutionId) {
+			query.where("story.institutionId = :institutionId", { institutionId });
+		}
+		if (published === 0 || published === 1) {
+			console.log(published);
+			query.andWhere("story.isDraft = :isDraft", { isDraft: !published });
+		}
+
+		stories = await query.getMany();
+		return stories;
 	}
 
 	async getStory(id: number): Promise<Story> {
@@ -21,7 +41,6 @@ export class StoryHandler {
 	async create(institutionId: number, options: StoryBody): Promise<Story> {
 		const story = new Story();
 		Object.assign(story, {
-			isDraft: true,
 			headlineUrl: "",
 			institutionId,
 			...options,
