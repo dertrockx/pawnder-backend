@@ -1,4 +1,4 @@
-import { PhotoHandler } from "@handlers";
+import { PetHandler, PhotoHandler } from "@handlers";
 import { PhotoOwnerEnum, PetPhotoTypeEnum, errors } from "@constants";
 import { Request, Response, Router } from "express";
 import { upload } from "@middlewares";
@@ -56,20 +56,36 @@ const updatePhoto = async (
 ) => {
 	if (!req.file)
 		return res.status(400).json({ msg: "`photo` field is required" });
+
 	const { petId } = req.body;
 	if (!petId) return res.status(400).json({ msg: "`petId` field is required" });
+	const petHandler = new PetHandler();
+	try {
+		await petHandler.getPet(petId);
+	} catch (err) {
+		if (err.message === errors.NOT_FOUND)
+			return res
+				.status(404)
+				.json({ msg: `Can't proceed. Pet with id ${petId} not found` });
+	}
 	const { id } = req.params;
 	const handler = new PhotoHandler();
 	try {
 		// checking to confirm if photo exists
 		let photo = await handler.get(id);
+
+		// check if owner of photo is petId
+		if (photo.petId !== parseInt(petId))
+			return res
+				.status(403)
+				.json({ msg: "Can't update photo. Owner mismatch" });
 		// upload new file
 		const result = await files.uploader.upload(req.file.path, {
 			folder: `/pet/${petId}`,
 			public_id: `pet-${petId}-photo-${photo.id}`,
 		});
 		photo = await handler.update(photo.id, result.secure_url);
-		return res.status(201).json({ photo });
+		return res.json({ photo });
 	} catch (error) {
 		if (error.message === errors.NOT_FOUND)
 			return res.status(404).json({ msg: `Photo with id ${id} not found` });
