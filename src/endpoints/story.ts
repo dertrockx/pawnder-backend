@@ -1,17 +1,9 @@
 import { Response, Request, Router } from "express";
 import { StoryHandler } from "@handlers";
-import multer from "multer";
 
-import { imageFilter, files } from "@utils";
+import { files } from "@utils";
 import { errors } from "@constants";
-
-const storage = multer.diskStorage({
-	filename: (req, file, cb) => {
-		cb(null, `${Date.now()} - ${file.originalname}`);
-	},
-});
-
-const upload = multer({ storage, fileFilter: imageFilter });
+import { upload } from "@middlewares";
 
 export const StoryEndpoint = Router();
 

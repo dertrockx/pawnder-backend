@@ -25,3 +25,14 @@ export enum ApplicationStatusEnum {
 	Rejected = "rejected",
 	Accepted = "Accepted",
 }
+
+export enum PhotoOwnerEnum {
+	Pet = "pet",
+	User = "user",
+	Institution = "institution",
+}
+
+export enum PetPhotoTypeEnum {
+	Main = "main",
+	Other = "other",
+}
