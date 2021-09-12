@@ -4,3 +4,4 @@ export * from "./story";
 export * from "./tag";
 export * from "./pet";
 export * from "./photo";
+export * from "./application";
