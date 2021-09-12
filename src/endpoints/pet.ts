@@ -7,18 +7,9 @@ import {
 } from "@constants";
 import { Request, Response, Router } from "express";
 import { upload } from "@middlewares";
-import { files } from "@utils";
+import { files, validRequiredFields } from "@utils";
 
 export const PetEndpoint = Router();
-
-const validRequiredFields = (
-	fields: string[],
-	obj: { [key: string]: any }
-): boolean => {
-	const keys = Object.keys(obj);
-	console.log(keys);
-	return fields.every((field) => keys.includes(field));
-};
 
 const getPet = async (req: Request, res: Response) => {
 	const { id } = req.params;
