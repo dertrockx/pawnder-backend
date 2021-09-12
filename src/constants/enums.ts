@@ -23,7 +23,7 @@ export enum ApplicationStatusEnum {
 	Deleted = "deleted",
 	UnderReview = "under review",
 	Rejected = "rejected",
-	Accepted = "Accepted",
+	Accepted = "accepted",
 }
 
 export enum PhotoOwnerEnum {
