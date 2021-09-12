@@ -17,7 +17,8 @@
 			"@decorators": ["decorators/"],
 			"@tests": ["tests/"],
 			"@constants": ["constants/"],
-			"@utils": ["utils/"]
+			"@utils": ["utils/"],
+			"@middlewares": ["middlewares/"]
 		}
 	}
 }

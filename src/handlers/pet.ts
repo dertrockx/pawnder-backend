@@ -1,9 +1,9 @@
-import { Pet } from "@models";
+import { Pet, Photo } from "@models";
 import { AnimalTypeEnum, SexEnum, ActionEnum, errors } from "@constants";
 import { getRepository } from "typeorm";
 
-interface PetBody {
-	institutionId: number;
+export interface PetBody {
+	institutionId: number | string;
 	name: string;
 	weight: number;
 	height: number;
@@ -16,17 +16,29 @@ interface PetBody {
 	action: ActionEnum;
 }
 
+export type Filters = Partial<Pick<PetBody, "institutionId" | "animalType">>;
+
 export class PetHandler {
-	async getPets(institutionId?: number | string): Promise<Pet[]> {
+	async getPets(filters?: Filters): Promise<Pet[]> {
 		const query = getRepository(Pet).createQueryBuilder("pet");
-		if (institutionId)
-			query.where("pet.institutionId = :institutionId", { institutionId });
-		const pets = await query.getMany();
+		let pets: Pet[];
+		if (filters) {
+			const { institutionId, animalType } = filters;
+			if (institutionId) {
+				query.where("pet.institutionId = :institutionId", { institutionId });
+			}
+			if (animalType) {
+				query.andWhere("pet.animalType = :animalType", { animalType });
+			}
+		}
+
+		pets = await query.getMany();
 		return pets;
 	}
 
 	async getPet(id: number | string): Promise<Pet> {
 		const pet = await Pet.findOne(id);
+		if (!pet) throw new Error(errors.NOT_FOUND);
 		return pet;
 	}
 
@@ -48,14 +60,7 @@ export class PetHandler {
 	async delete(id: number | string): Promise<boolean> {
 		const pet = await Pet.findOne(id);
 		if (!pet) throw new Error(errors.NOT_FOUND);
-		return new Promise(async (resolve, reject) => {
-			try {
-				await pet.softRemove();
-				resolve(true);
-			} catch (err) {
-				console.log(err);
-				reject(false);
-			}
-		});
+		await pet.softRemove();
+		return true;
 	}
 }
