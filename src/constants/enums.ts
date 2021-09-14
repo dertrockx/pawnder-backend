@@ -36,3 +36,8 @@ export enum PetPhotoTypeEnum {
 	Main = "main",
 	Other = "other",
 }
+
+export enum AuthTypeEnum {
+	USER = "USER",
+	INSTITUTION = "INSTITUTION",
+}
