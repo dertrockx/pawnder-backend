@@ -2,11 +2,14 @@ import { DefaultEntity } from "@decorators";
 import { AnimalTypeEnum, ActionEnum, SexEnum } from "@constants";
 import { Entity, Column, OneToMany } from "typeorm";
 import { UserIgnoredPet } from "./UserIgnoredPet";
-
+import { transformHashedValue } from "@utils";
 @Entity()
 export class User extends DefaultEntity {
 	@Column()
 	email: string;
+
+	@Column({ select: false, transformer: transformHashedValue })
+	password: string;
 
 	@Column()
 	firstName: string;
