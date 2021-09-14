@@ -52,7 +52,7 @@ export class PetHandler {
 	async update(id: number | string, options: Partial<PetBody>): Promise<Pet> {
 		const pet = await Pet.findOne(id);
 		if (!pet) throw new Error(errors.NOT_FOUND);
-		Object.assign(pet, options);
+		Object.assign(pet, { ...options });
 		await pet.save();
 		return pet;
 	}
