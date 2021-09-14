@@ -1,5 +1,6 @@
 export enum AuthException {
 	USER_NOT_FOUND = "USER_NOT_FOUND",
+	INVALID_FIELDS = "INVALID_FIELDS",
 	INSTITUTION_NOT_FOUND = "INSTITUTION_NOT_FOUND",
 	INCORRECT_PASSWORD = "INCORRECT_PASSWORD",
 	INCORRECT_EMAIL_PASSWORD = "INCORRECT_EMAIL_PASSWORD",
@@ -8,12 +9,12 @@ export enum AuthException {
 	ACCESS_DENIED = "ACCESS_DENIED",
 }
 
-export enum UserException {
+export enum ModelException {
 	USER_ALREADY_EXISTS = "USER_ALREADY_EXISTS",
 	INSTITUTION_ALREADY_EXISTS = "INSTITUTION_ALREADY_EXISTS",
 }
 
-export type ExceptionType = AuthException | UserException;
+export type ExceptionType = AuthException | ModelException;
 
 export class Exception<T = undefined> {
 	constructor(
