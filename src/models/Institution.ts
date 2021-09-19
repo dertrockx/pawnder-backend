@@ -12,19 +12,19 @@ export class Institution extends DefaultEntity {
 	@Column({ select: false, transformer: transformHashedValue })
 	password: string;
 
-	@Column("float")
+	@Column({ type: "float", nullable: true })
 	locationLat: number;
 
-	@Column("float")
+	@Column({ type: "float", nullable: true })
 	locationLong: number;
 
-	@Column()
+	@Column({ nullable: true })
 	email: string;
 
-	@Column()
+	@Column({ nullable: true })
 	contactNumber: string;
 
-	@Column()
+	@Column({ nullable: true })
 	description: string;
 
 	@OneToMany(() => Pet, (pet) => pet.institution)
