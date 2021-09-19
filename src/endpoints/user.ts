@@ -83,16 +83,33 @@ const deleteUser = async (req: Request, res: Response) => {
 
 
 const createUser = async (req: Request<any, any, UserBody, any>, res: Response) => {
-	const { email, password, firstName, middleName, lastName, birthDate, sex, photoUrl, contactNumber, locationLat, locationLong, preferredAnimal, action, preferredDistance } = req.body;
+	const { email, password } = req.body;
 	const {body} = req;
-	if (!email || !password || !firstName || !middleName || !lastName || !birthDate || !sex || !photoUrl || !contactNumber || !locationLat || !locationLong || !preferredAnimal || !action || !preferredDistance) {
+	if (!email || !password) {
 		return res.status(400).json({
-			msg: "email, password, firstName, middleName, lastName, birthDate, sex, photoUrl, contactNumber, locationLat, locationLong, preferredAnimal, action, preferredDistance are required in body",
+			msg: "email, password are required in body",
 		});
 	}
+	// email, password, firstName, middleName, lastName, birthDate, sex, photoUrl, contactNumber, locationLat, locationLong, preferredAnimal, action, preferredDistance
     const handler = new UserHandler();
     try {
-        const user = await handler.create(email, body);
+        const user = await handler.create(email, {
+			email, 
+			password, 
+			firstName: null, 
+			middleName: null, 
+			lastName: null, 
+			birthDate: null, 
+			sex: null, 
+			photoUrl: null, 
+			contactNumber: null, 
+			locationLat: null, 
+			locationLong: null, 
+			preferredAnimal: null, 
+			action: null,
+			preferredDistance: null
+		}
+			);
         return res.status(201).json({ user });
     } catch (error) {
 		console.log(error);
