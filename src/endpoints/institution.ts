@@ -1,7 +1,7 @@
 import { Request, Response, Router } from "express";
 import { InstitutionHandler } from "@handlers";
 import { Institution } from "@models";
-import { errors } from "@constants";
+import { errors, ModelException } from "@constants";
 
 export const InstitutionEndpoint = Router();
 
@@ -15,10 +15,12 @@ interface GetNearbyInstitutionsQuery {
 interface InstitutionBody {
 	name?: string;
 	email?: string;
+	password?: string;
+	description?: string;
 	locationLat?: string;
 	locationLong?: string;
 	contactNumber?: string;
-	description?: string;
+	photoURL?: string;
 }
 
 const getInstitutions = async (
@@ -67,6 +69,38 @@ const getSingleInstitution = async (req: Request, res: Response) => {
 	}
 };
 
+const createInstitution = async (
+	req: Request<any, any, InstitutionBody, any>,
+	res: Response
+) => {
+	const { email, password } = req.body;
+	const body = req;
+	if (!email || !password)
+		return res.status(400).json({ msg: "Email and password are required." });
+
+	const handler = new InstitutionHandler();
+	try {
+		const institution = await handler.create(email, {
+			email,
+			password,
+			name: null,
+			description: null,
+			locationLat: null,
+			locationLong: null,
+			contactNumber: null,
+			photoURL: null
+		});
+
+		return res.status(201).json({ institution });
+	} catch (error) {
+		console.log(error);
+		if (error.code === ModelException.INSTITUTION_ALREADY_EXISTS)
+			return res.status(400).json(error);
+			
+		return res.status(500).json({ msg: "Server error. Please contact admin" });
+	}
+}
+
 // TODO: still need to validate and sanitize data sent to this endpoint
 
 const updateInstitution = async (
@@ -108,5 +142,6 @@ const deleteInstitution = async (req: Request, res: Response) => {
 
 InstitutionEndpoint.get("/", getInstitutions);
 InstitutionEndpoint.get("/:id", getSingleInstitution);
+InstitutionEndpoint.post("/", createInstitution);
 InstitutionEndpoint.put("/:id", updateInstitution);
 InstitutionEndpoint.delete("/:id", deleteInstitution);
