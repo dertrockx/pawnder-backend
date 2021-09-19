@@ -11,35 +11,36 @@ export class User extends DefaultEntity {
 	@Column({ select: false, transformer: transformHashedValue })
 	password: string;
 
-	@Column()
+	@Column({ nullable: true })
 	firstName: string;
 
-	@Column()
+	@Column({ nullable: true })
 	middleName: string;
 
-	@Column()
+	@Column({ nullable: true })
 	lastName: string;
 
-	@Column("timestamp")
+	@Column({ type: "timestamp", nullable: true })
 	birthDate: Date;
 
 	@Column({
 		type: "enum",
 		enum: SexEnum,
 		default: SexEnum.Male,
+		nullable: true,
 	})
 	sex: SexEnum;
 
-	@Column()
+	@Column({ nullable: true })
 	photoUrl: string;
 
-	@Column()
+	@Column({ nullable: true })
 	contactNumber: string;
 
-	@Column("float")
+	@Column({ type: "float", nullable: true })
 	locationLat: number;
 
-	@Column("float")
+	@Column({ type: "float", nullable: true })
 	locationLong: number;
 
 	// User preferences
@@ -47,6 +48,7 @@ export class User extends DefaultEntity {
 		type: "enum",
 		enum: AnimalTypeEnum,
 		default: AnimalTypeEnum.Dogs,
+		nullable: true,
 	})
 	preferredAnimal: AnimalTypeEnum;
 
@@ -54,10 +56,11 @@ export class User extends DefaultEntity {
 		type: "enum",
 		enum: ActionEnum,
 		default: ActionEnum.Adopt,
+		nullable: true,
 	})
 	action: ActionEnum;
 
-	@Column("float")
+	@Column({ type: "float", nullable: true })
 	preferredDistance: number;
 
 	@OneToMany(() => UserIgnoredPet, (ignoredPet) => ignoredPet.user)
