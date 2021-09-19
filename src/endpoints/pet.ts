@@ -11,6 +11,13 @@ import { files, validRequiredFields } from "@utils";
 
 export const PetEndpoint = Router();
 
+// type Queries = Omit<Filters, "location">;
+interface Queries extends Omit<Filters, "location"> {
+	centerLat?: string;
+	centerLong?: string;
+	distance?: string;
+}
+
 const getPet = async (req: Request, res: Response) => {
 	const { id } = req.params;
 	const handler = new PetHandler();
@@ -28,11 +35,17 @@ const getPet = async (req: Request, res: Response) => {
 	}
 };
 
-const getPets = async (req: Request<any, any, any, Filters>, res: Response) => {
+const getPets = async (req: Request<any, any, any, Queries>, res: Response) => {
 	const petHandler = new PetHandler();
 	const photoHandler = new PhotoHandler();
 	const filters: Filters = {};
-	const { institutionId, animalType, userId } = req.query;
+	const {
+		institutionId,
+		animalType,
+		userId,
+		nearby = false,
+		...rest
+	} = req.query;
 
 	if (institutionId) {
 		if (typeof institutionId === "string" && isNaN(parseInt(institutionId)))
@@ -54,6 +67,21 @@ const getPets = async (req: Request<any, any, any, Filters>, res: Response) => {
 				.status(400)
 				.json({ msg: "`userId` in url params should be a number" });
 		Object.assign(filters, { userId });
+	}
+	if (nearby) {
+		const { centerLat, centerLong, distance } = rest;
+		if (!centerLat || !centerLong || !distance)
+			return res.status(400).json({
+				msg: "Please make sure centerLat, centerLong, and distance are provided and are integers",
+			});
+		Object.assign(filters, {
+			nearby: true,
+			location: {
+				lat: centerLat,
+				long: centerLong,
+				distance,
+			},
+		});
 	}
 
 	try {

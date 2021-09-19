@@ -3,8 +3,8 @@ import { getRepository } from "typeorm";
 import { errors, Exception, ModelException } from "@constants";
 
 export interface IgnoredPetBody {
-	userId?: string | number;
-	petId?: string | number;
+	userId?: string;
+	petId?: string;
 }
 
 export class IgnoredPetHandler {
@@ -32,7 +32,10 @@ export class IgnoredPetHandler {
 		const pet = await Pet.findOne(petId);
 		if (!pet) throw new Error(errors.NOT_FOUND);
 
-		const exists = await this.list({ petId, userId });
+		const exists = await UserIgnoredPet.findOne({
+			userId: parseInt(userId),
+			petId: parseInt(petId),
+		});
 		if (exists) throw new Exception(ModelException.ENTRY_ALREADY_EXISTS);
 
 		const model = new UserIgnoredPet();
