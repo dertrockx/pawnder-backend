@@ -32,7 +32,7 @@ const getPets = async (req: Request<any, any, any, Filters>, res: Response) => {
 	const petHandler = new PetHandler();
 	const photoHandler = new PhotoHandler();
 	const filters: Filters = {};
-	const { institutionId, animalType } = req.query;
+	const { institutionId, animalType, userId } = req.query;
 
 	if (institutionId) {
 		if (typeof institutionId === "string" && isNaN(parseInt(institutionId)))
@@ -48,6 +48,14 @@ const getPets = async (req: Request<any, any, any, Filters>, res: Response) => {
 			});
 		Object.assign(filters, { animalType });
 	}
+	if (userId) {
+		if (typeof userId === "string" && isNaN(parseInt(userId)))
+			return res
+				.status(400)
+				.json({ msg: "`userId` in url params should be a number" });
+		Object.assign(filters, { userId });
+	}
+
 	try {
 		let pets = await petHandler.getPets(filters);
 		const petPhotoPromises = pets.map(async (pet) => {
