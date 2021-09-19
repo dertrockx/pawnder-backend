@@ -13,4 +13,8 @@ export class UserIgnoredPet extends DefaultEntity {
 
 	@Column("int")
 	petId: number;
+
+	@ManyToOne(() => Pet, (pet) => pet.ignorees)
+	@JoinColumn({ name: "petId" })
+	pet: Pet;
 }

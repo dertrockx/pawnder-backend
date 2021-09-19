@@ -1,5 +1,6 @@
 import { DefaultEntity } from "@decorators";
 import { Institution } from "./Institution";
+import { UserIgnoredPet } from "./UserIgnoredPet";
 import { Entity, JoinColumn, ManyToOne, Column, OneToMany } from "typeorm";
 import { SexEnum, ActionEnum, AnimalTypeEnum } from "@constants";
 import { Photo } from "./Photo";
@@ -57,4 +58,7 @@ export class Pet extends DefaultEntity {
 
 	@OneToMany(() => Photo, (photo) => photo.pet)
 	photos: Photo[];
+
+	@OneToMany(() => UserIgnoredPet, (ignore) => ignore.pet)
+	ignorees: UserIgnoredPet[];
 }
