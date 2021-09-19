@@ -1,6 +1,6 @@
-import { Pet, Photo } from "@models";
+import { Pet, Photo, UserIgnoredPet } from "@models";
 import { AnimalTypeEnum, SexEnum, ActionEnum, errors } from "@constants";
-import { getRepository } from "typeorm";
+import { getRepository, getManager, EntityManager } from "typeorm";
 
 export interface PetBody {
 	institutionId: number | string;
@@ -16,16 +16,28 @@ export interface PetBody {
 	action: ActionEnum;
 }
 
-export type Filters = Partial<Pick<PetBody, "institutionId" | "animalType">>;
-
+export interface Filters {
+	userId?: string | number;
+	animalType?: AnimalTypeEnum;
+	institutionId?: string | number;
+}
 export class PetHandler {
 	async getPets(filters?: Filters): Promise<Pet[]> {
-		const query = getRepository(Pet).createQueryBuilder("pet");
+		// query to do left join
+		// select pet.id from pet LEFT JOIN user_ignored_pet ON pet.id != user_ignored_pet.petId WHERE user_ignored_pet.userId = 4;
+		// const query = getRepository(Pet).createQueryBuilder("pet");
 		let pets: Pet[];
+		// let query = getManager().createQueryBuilder().select("*").from(Pet, "pet");
+		const query = getRepository(Pet).createQueryBuilder("pet");
+
 		if (filters) {
-			const { institutionId, animalType } = filters;
+			const { institutionId, animalType, userId } = filters;
+			if (userId) {
+				query.leftJoin("pet.ignorees", "ignored", "pet.id != ignored.petId");
+				// .where("ignored.userId != :userId", { userId });
+			}
 			if (institutionId) {
-				query.where("pet.institutionId = :institutionId", { institutionId });
+				query.andWhere("pet.institutionId = :institutionId", { institutionId });
 			}
 			if (animalType) {
 				query.andWhere("pet.animalType = :animalType", { animalType });

@@ -7,6 +7,7 @@ import {
 	PhotoEndpoint,
 	ApplicationEndpoint,
 	AuthEndpoint,
+	IgnoredEndpoint,
 } from "@endpoints";
 export const router = Router();
 
@@ -18,3 +19,4 @@ router.use("/pet", PetEndpoint);
 router.use("/photo", PhotoEndpoint);
 router.use("/application", ApplicationEndpoint);
 router.use("/auth", AuthEndpoint);
+router.use("/ignore", IgnoredEndpoint);
