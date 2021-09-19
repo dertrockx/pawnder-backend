@@ -1,7 +1,7 @@
 import { AuthHandler } from "@handlers";
 import { Request, Response, Router } from "express";
 import { AuthException, AuthTypeEnum } from "@constants";
-import { isAuthenticated } from "@middlewares";
+import { isAuthenticated, isAuthorized } from "@middlewares";
 export const AuthEndpoint = Router();
 
 interface ReqBody {
@@ -41,5 +41,15 @@ const authenticatedRoute = (req: Request, res: Response) => {
 	return res.json({ msg: "Congrats! You are authenticated" });
 };
 
+const authorizedRoute = (req: Request, res: Response) => {
+	return res.json({ msg: "Congrats! You are authorized" });
+};
+
 AuthEndpoint.post("/login", institutionLogin);
-AuthEndpoint.get("/test", isAuthenticated, authenticatedRoute);
+AuthEndpoint.get("/test/authentication", isAuthenticated, authenticatedRoute);
+// u must pass both middlewares and at this specific order
+AuthEndpoint.get(
+	"/test/authorization",
+	[isAuthenticated, isAuthorized],
+	authorizedRoute
+);
