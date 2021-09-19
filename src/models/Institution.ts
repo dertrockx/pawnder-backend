@@ -3,11 +3,14 @@ import { Column, Entity, OneToMany } from "typeorm";
 import { Pet } from "./Pet";
 import { SocialMediaLink } from "./SocialMediaLink";
 import { Story } from "./Story";
-
+import { transformHashedValue } from "@utils";
 @Entity()
 export class Institution extends DefaultEntity {
 	@Column()
 	name: string;
+
+	@Column({ select: false, transformer: transformHashedValue })
+	password: string;
 
 	@Column("float")
 	locationLat: number;
@@ -20,6 +23,9 @@ export class Institution extends DefaultEntity {
 
 	@Column()
 	contactNumber: string;
+
+	@Column()
+	description: string;
 
 	@OneToMany(() => Pet, (pet) => pet.institution)
 	pets: Pet[];

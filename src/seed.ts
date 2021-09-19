@@ -11,7 +11,10 @@ import {
 	internet,
 	date,
 	company,
+	lorem,
 } from "faker";
+
+const DEFAULT_PASSWORD = "password";
 
 const getEntryFromEnum = (anyEnum: any) =>
 	random.arrayElement(Object.values(anyEnum));
@@ -39,6 +42,7 @@ const generateDummyUser = async (): Promise<User> => {
 		preferredAnimal: getEntryFromEnum(AnimalTypeEnum),
 		action: getEntryFromEnum(ActionEnum),
 		preferredDistance: datatype.float(),
+		password: DEFAULT_PASSWORD,
 	});
 
 	await user.save();
@@ -54,6 +58,8 @@ const generateDummyInstitution = async (): Promise<Institution> => {
 		locationLong: address.longitude(),
 		email: internet.email(instiName, ""),
 		contactNumber: phone.phoneNumber("+639#########"),
+		description: lorem.sentences(3),
+		password: DEFAULT_PASSWORD,
 	});
 	await institution.save();
 	return institution;

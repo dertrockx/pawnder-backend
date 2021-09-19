@@ -1,22 +1,15 @@
 import { Response, Request, Router } from "express";
 import { StoryHandler } from "@handlers";
-import multer from "multer";
 
-import { imageFilter, files } from "@utils";
+import { files } from "@utils";
 import { errors } from "@constants";
-
-const storage = multer.diskStorage({
-	filename: (req, file, cb) => {
-		cb(null, `${Date.now()} - ${file.originalname}`);
-	},
-});
-
-const upload = multer({ storage, fileFilter: imageFilter });
+import { upload } from "@middlewares";
 
 export const StoryEndpoint = Router();
 
-interface InstiIdQuery {
-	institutionId: string;
+interface ListQuery {
+	institutionId?: string;
+	published?: string;
 }
 
 interface StoryBody {
@@ -24,16 +17,33 @@ interface StoryBody {
 	title?: string;
 	body?: string;
 	tags?: string;
+	isDraft?: string;
 }
 
 const getStories = async (
-	req: Request<any, any, any, InstiIdQuery>,
+	req: Request<any, any, any, ListQuery>,
 	res: Response
 ) => {
-	const { institutionId } = req.query;
+	let { institutionId, published = undefined } = req.query;
+	const options = {};
+	if (published) {
+		const parsed = parseInt(published);
+		if (isNaN(parsed))
+			return res.status(400).json({
+				msg: "`published` field in url parameters should be a whole number",
+			});
+		if (parsed < 0 || parsed > 1)
+			return res.status(400).json({
+				msg: "`published` field in url parameters only accepts 1 or 0 as value",
+			});
+		Object.assign(options, { published: parsed });
+	}
+
+	if (institutionId) Object.assign(options, { institutionId });
+
 	const handler = new StoryHandler();
 	try {
-		const stories = await handler.getStories(institutionId);
+		const stories = await handler.getStories(options);
 		return res.json({ stories });
 	} catch (err) {
 		console.log(err);
@@ -60,21 +70,29 @@ const createStory = async (
 	res: Response
 ) => {
 	console.log(req.file);
-	const { title, body, tags, institutionId } = req.body;
+	// isDraft field is sent as a `string` when sent via multipart/form-data
+	const { title, body, tags, institutionId, isDraft = "true" } = req.body;
+
 	if (!title || !body || !tags || !institutionId)
 		return res.status(400).json({
 			msg: "title, body, tags, and institutionId fields are required in body",
 		});
 	const handler = new StoryHandler();
 	try {
-		let story = await handler.create(parseInt(institutionId), { title, body });
+		let story = await handler.create(parseInt(institutionId), {
+			title,
+			body,
+			// isDraft field is sent as a `string` when sent via multipart/form-data
+			isDraft: isDraft === "true",
+		});
 		const result = await files.uploader.upload(req.file.path, {
 			folder: `/institution/${institutionId}/stories/${story.id}`,
 			public_id: "headlinePhoto",
 		});
 		story = await handler.setHeadlineUrl(story.id, result.secure_url);
-		return res.json({ story });
+		return res.status(201).json({ story });
 	} catch (err) {
+		console.log(err);
 		res.status(500).json({ msg: "Server error. Please contact admin" });
 	}
 };
@@ -83,7 +101,7 @@ const updateStory = async (
 	req: Request<any, any, StoryBody, { publish: string }>,
 	res: Response
 ) => {
-	const { body } = req;
+	let { isDraft, ...body } = req.body;
 	const { id } = req.params;
 
 	const { publish } = req.query;

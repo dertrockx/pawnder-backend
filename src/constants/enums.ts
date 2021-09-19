@@ -23,5 +23,21 @@ export enum ApplicationStatusEnum {
 	Deleted = "deleted",
 	UnderReview = "under review",
 	Rejected = "rejected",
-	Accepted = "Accepted",
+	Accepted = "accepted",
+}
+
+export enum PhotoOwnerEnum {
+	Pet = "pet",
+	User = "user",
+	Institution = "institution",
+}
+
+export enum PetPhotoTypeEnum {
+	Main = "main",
+	Other = "other",
+}
+
+export enum AuthTypeEnum {
+	USER = "USER",
+	INSTITUTION = "INSTITUTION",
 }

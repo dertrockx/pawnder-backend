@@ -1,9 +1,11 @@
-import { User } from '@models';
+import { Pet, User } from '@models';
 import { ActionEnum, AnimalTypeEnum, SexEnum } from '@constants';
 import { errors } from "@constants";
+import { Exception, ModelException } from '@constants';
 
 interface UserBody {
     email?: string;
+    password?: string;
     firstName?: string;
     middleName?: string;
     lastName?: string;
@@ -47,5 +49,14 @@ export class UserHandler {
 
         await user.softRemove();
         return user;
+    }
+
+    async create(email: string, options: UserBody): Promise<User> {
+        const existingUser = await User.findOne({email});
+		if (existingUser) throw new Exception(ModelException.USER_ALREADY_EXISTS);
+        const newUser = new User(); 
+        Object.assign(newUser, options);
+        await newUser.save();
+        return newUser;
     }
 }

@@ -18,6 +18,7 @@ interface InstitutionBody {
 	locationLat?: string;
 	locationLong?: string;
 	contactNumber?: string;
+	description?: string;
 }
 
 const getInstitutions = async (

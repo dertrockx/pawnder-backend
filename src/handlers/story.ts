@@ -8,13 +8,28 @@ interface StoryBody {
 }
 
 export class StoryHandler {
-	async getStories(institutionId?: number | string): Promise<Story[]> {
+	async getStories(options?: {
+		institutionId?: number | string;
+		published?: number;
+	}): Promise<Story[]> {
 		const query = getRepository(Story).createQueryBuilder("story");
+		let stories: Story[] = [];
+		if (!options) {
+			stories = await query.getMany();
+			return stories;
+		}
+
+		const { published, institutionId } = options;
 		if (institutionId) {
 			query.where("story.institutionId = :institutionId", { institutionId });
 		}
-		const story = await query.getMany();
-		return story;
+		if (published === 0 || published === 1) {
+			console.log(published);
+			query.andWhere("story.isDraft = :isDraft", { isDraft: !published });
+		}
+
+		stories = await query.getMany();
+		return stories;
 	}
 
 	async getStory(id: number): Promise<Story> {
@@ -26,7 +41,6 @@ export class StoryHandler {
 	async create(institutionId: number, options: StoryBody): Promise<Story> {
 		const story = new Story();
 		Object.assign(story, {
-			isDraft: true,
 			headlineUrl: "",
 			institutionId,
 			...options,
