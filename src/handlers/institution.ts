@@ -49,7 +49,7 @@ export class InstitutionHandler {
 		return institution;
 	}
 
-	async create(email: string, options: InstitutionBody) {
+	async create(email: string, options: InstitutionBody): Promise<Institution> {
 		const institutionExists = await Institution.findOne({email});
 		if (institutionExists) throw new Exception(ModelException.INSTITUTION_ALREADY_EXISTS);
 		
