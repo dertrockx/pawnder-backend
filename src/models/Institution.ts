@@ -6,7 +6,7 @@ import { Story } from "./Story";
 import { transformHashedValue } from "@utils";
 @Entity()
 export class Institution extends DefaultEntity {
-	@Column()
+	@Column({ nullable: true })
 	name: string;
 
 	@Column({ select: false, transformer: transformHashedValue })
@@ -27,7 +27,7 @@ export class Institution extends DefaultEntity {
 	@Column({ nullable: true })
 	description: string;
 
-	@Column()
+	@Column({ nullable: true })
 	photoURL: string;
 
 	@OneToMany(() => Pet, (pet) => pet.institution)
