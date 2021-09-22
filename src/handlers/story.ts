@@ -20,6 +20,8 @@ export class StoryHandler {
 			.addSelect("s.institutionId", "institutionId")
 			.addSelect("s.isDraft", "isDraft")
 			.addSelect("s.publishedAt", "publishedAt")
+			.addSelect("s.createdAt", "createdAt")
+			.addSelect("s.updatedAt", "updatedAt")
 			.addSelect("s.title", "title")
 			.addSelect("s.body", "body")
 			.addSelect("s.headlineUrl", "headlineUrl")
@@ -65,19 +67,6 @@ export class StoryHandler {
 			...options,
 		});
 		await manager.save(story);
-		// const story = await manager.create<Story>({
-		// 	headlineUrl: "",
-		// 	institutionId,
-		// 	...options
-		// })
-		// const story = new Story();
-		// Object.assign(story, {
-		// 	headlineUrl: "",
-		// 	institutionId,
-
-		// 	...options,
-		// });
-		// await story.save();
 
 		return story;
 	}

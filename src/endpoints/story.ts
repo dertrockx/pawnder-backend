@@ -1,5 +1,5 @@
 import { Response, Request, Router } from "express";
-import { StoryHandler } from "@handlers";
+import { StoryHandler, TagHandler } from "@handlers";
 
 import { files } from "@utils";
 import { errors } from "@constants";
@@ -78,6 +78,7 @@ const createStory = async (
 			msg: "title, body, tags, and institutionId fields are required in body",
 		});
 	const handler = new StoryHandler();
+	const tagHandler = new TagHandler();
 	try {
 		let story = await handler.create(parseInt(institutionId), {
 			title,
@@ -90,6 +91,8 @@ const createStory = async (
 			public_id: "headlinePhoto",
 		});
 		story = await handler.setHeadlineUrl(story.id, result.secure_url);
+		const newTags = await tagHandler.createTags(story.id, tags.split(", "));
+		Object.assign(story, { tags: newTags });
 		return res.status(201).json({ story });
 	} catch (err) {
 		console.log(err);
