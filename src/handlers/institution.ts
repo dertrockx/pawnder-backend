@@ -1,16 +1,19 @@
-import { getManager } from "typeorm";
+import { getManager, FindOneOptions } from "typeorm";
 import { Institution } from "@models";
 import { distanceToDegConverter } from "@utils";
-import { errors } from "@constants";
+import { errors, Exception, ModelException } from "@constants";
 // SQL Query
 // "SQRT( POWER(locationLat - :centerLat, 2) + POWER(locationLong - :centerLong, 2) ) < :radius",
 
 interface InstitutionBody {
 	name?: string;
 	email?: string;
+	password?: string;
+	description?: string;
 	locationLat?: string;
 	locationLong?: string;
 	contactNumber?: string;
+	photoURL?: string;
 }
 
 export class InstitutionHandler {
@@ -40,9 +43,26 @@ export class InstitutionHandler {
 		return institutions;
 	}
 
-	async getInstitution(id: number | string): Promise<Institution> {
-		const institution = await Institution.findOne(id);
+	async getInstitution(
+		id?: number | string,
+		options?: FindOneOptions<Institution>
+	): Promise<Institution> {
+		const institution = (await options)
+			? Institution.findOne(options)
+			: Institution.findOne(id);
 		if (!institution) throw new Error(errors.NOT_FOUND);
+		return institution;
+	}
+
+	async create(email: string, options: InstitutionBody): Promise<Institution> {
+		const institutionExists = await Institution.findOne({email});
+		if (institutionExists) throw new Exception(ModelException.INSTITUTION_ALREADY_EXISTS);
+		
+		const institution = new Institution();
+		Object.assign(institution, options);
+
+		await institution.save();
+
 		return institution;
 	}
 

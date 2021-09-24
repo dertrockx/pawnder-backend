@@ -8,8 +8,16 @@ import {
 import { Request, Response, Router } from "express";
 import { upload } from "@middlewares";
 import { files, validRequiredFields } from "@utils";
+import { Photo } from "@models";
 
 export const PetEndpoint = Router();
+
+// type Queries = Omit<Filters, "location">;
+interface Queries extends Omit<Filters, "location"> {
+	centerLat?: string;
+	centerLong?: string;
+	distance?: string;
+}
 
 const getPet = async (req: Request, res: Response) => {
 	const { id } = req.params;
@@ -28,11 +36,17 @@ const getPet = async (req: Request, res: Response) => {
 	}
 };
 
-const getPets = async (req: Request<any, any, any, Filters>, res: Response) => {
+const getPets = async (req: Request<any, any, any, Queries>, res: Response) => {
 	const petHandler = new PetHandler();
 	const photoHandler = new PhotoHandler();
 	const filters: Filters = {};
-	const { institutionId, animalType } = req.query;
+	const {
+		institutionId,
+		animalType,
+		userId,
+		nearby = false,
+		...rest
+	} = req.query;
 
 	if (institutionId) {
 		if (typeof institutionId === "string" && isNaN(parseInt(institutionId)))
@@ -48,12 +62,35 @@ const getPets = async (req: Request<any, any, any, Filters>, res: Response) => {
 			});
 		Object.assign(filters, { animalType });
 	}
+	if (userId) {
+		if (typeof userId === "string" && isNaN(parseInt(userId)))
+			return res
+				.status(400)
+				.json({ msg: "`userId` in url params should be a number" });
+		Object.assign(filters, { userId });
+	}
+	if (nearby) {
+		const { centerLat, centerLong, distance } = rest;
+		if (!centerLat || !centerLong || !distance)
+			return res.status(400).json({
+				msg: "Please make sure centerLat, centerLong, and distance are provided and are integers",
+			});
+		Object.assign(filters, {
+			nearby: true,
+			location: {
+				lat: centerLat,
+				long: centerLong,
+				distance,
+			},
+		});
+	}
+
 	try {
 		let pets = await petHandler.getPets(filters);
 		const petPhotoPromises = pets.map(async (pet) => {
 			let photos = await photoHandler.list({ petId: pet.id });
 			// return url to maps instead of returning the entire Photo object
-			return { ...pet, photos: photos.map(({ url }) => url) };
+			return { ...pet, photos };
 		});
 		const result = await Promise.all(petPhotoPromises);
 		return res.json({ pets: result, count: pets.length });
@@ -129,13 +166,13 @@ const createPet = async (
 
 		const others: any[] = photos["others"];
 
-		const imagePromises: Promise<any>[] = others.map(
-			async (photo): Promise<any> => {
+		const imagePromises: Promise<Photo>[] = others.map(
+			async (photo): Promise<Photo> => {
 				let newPhoto = await photoHandler.create({
 					petId: pet.id,
 					url: "",
 					owner: PhotoOwnerEnum.Pet,
-					type: PetPhotoTypeEnum.Main,
+					type: PetPhotoTypeEnum.Other,
 				});
 				const result = await files.uploader.upload(photo.path, {
 					folder: `/pet/${pet.id}/`,
@@ -150,7 +187,9 @@ const createPet = async (
 
 		console.log(mainPhotoObj);
 		console.log(otherImagesResponses);
-		return res.status(201).json({ pet });
+		return res
+			.status(201)
+			.json({ pet, images: [mainPhotoObj, ...otherImagesResponses] });
 	} catch (error) {
 		console.log(error);
 		return res.status(500).json({ msg: "Server error. Please contact admi" });

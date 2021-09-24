@@ -12,6 +12,7 @@ export enum AuthException {
 export enum ModelException {
 	USER_ALREADY_EXISTS = "USER_ALREADY_EXISTS",
 	INSTITUTION_ALREADY_EXISTS = "INSTITUTION_ALREADY_EXISTS",
+	ENTRY_ALREADY_EXISTS = "ENTRY_ALREADY_EXISTS",
 }
 
 export type ExceptionType = AuthException | ModelException;
