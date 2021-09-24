@@ -30,7 +30,7 @@ export class TagHandler {
 		return tag;
 	}
 
-	async createTags(storyId: number, texts: any): Promise<Tag[]> {
+	async createTags(storyId: number, texts: string[]): Promise<Tag[]> {
 		const tags = texts.map((text) => {
 			const newTag = new Tag();
 			Object.assign(newTag, { storyId, text });

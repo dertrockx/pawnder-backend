@@ -21,14 +21,12 @@ export class DefaultEntity extends BaseEntity {
 	deleted: boolean;
 
 	@Column({
-		select: false,
 		type: "timestamp",
 		default: () => "CURRENT_TIMESTAMP",
 	})
 	createdAt: Date;
 
 	@Column({
-		select: false,
 		type: "timestamp",
 		default: () => "CURRENT_TIMESTAMP",
 	})

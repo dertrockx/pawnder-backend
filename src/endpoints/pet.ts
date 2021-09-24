@@ -8,6 +8,7 @@ import {
 import { Request, Response, Router } from "express";
 import { upload } from "@middlewares";
 import { files, validRequiredFields } from "@utils";
+import { Photo } from "@models";
 
 export const PetEndpoint = Router();
 
@@ -89,7 +90,7 @@ const getPets = async (req: Request<any, any, any, Queries>, res: Response) => {
 		const petPhotoPromises = pets.map(async (pet) => {
 			let photos = await photoHandler.list({ petId: pet.id });
 			// return url to maps instead of returning the entire Photo object
-			return { ...pet, photos: photos.map(({ url }) => url) };
+			return { ...pet, photos };
 		});
 		const result = await Promise.all(petPhotoPromises);
 		return res.json({ pets: result, count: pets.length });
@@ -165,13 +166,13 @@ const createPet = async (
 
 		const others: any[] = photos["others"];
 
-		const imagePromises: Promise<any>[] = others.map(
-			async (photo): Promise<any> => {
+		const imagePromises: Promise<Photo>[] = others.map(
+			async (photo): Promise<Photo> => {
 				let newPhoto = await photoHandler.create({
 					petId: pet.id,
 					url: "",
 					owner: PhotoOwnerEnum.Pet,
-					type: PetPhotoTypeEnum.Main,
+					type: PetPhotoTypeEnum.Other,
 				});
 				const result = await files.uploader.upload(photo.path, {
 					folder: `/pet/${pet.id}/`,
@@ -186,7 +187,9 @@ const createPet = async (
 
 		console.log(mainPhotoObj);
 		console.log(otherImagesResponses);
-		return res.status(201).json({ pet });
+		return res
+			.status(201)
+			.json({ pet, images: [mainPhotoObj, ...otherImagesResponses] });
 	} catch (error) {
 		console.log(error);
 		return res.status(500).json({ msg: "Server error. Please contact admi" });

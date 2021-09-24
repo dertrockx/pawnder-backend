@@ -2,6 +2,7 @@ import { User, Institution } from "@models";
 import { AuthException, Exception, AuthTypeEnum } from "@constants";
 import { compare } from "bcrypt";
 import * as jwt from "jsonwebtoken";
+import randtoken from "rand-token";
 import { SelectQueryBuilder } from "typeorm";
 export interface SessionToken {
 	readonly auth: string;
@@ -11,11 +12,15 @@ export interface SessionToken {
 export interface TokenPayload {
 	readonly model: User | Institution;
 	readonly iat: number; // issued at
+	readonly exp: number;
 }
 // TODO: check if we should refactor this class
 export class AuthHandler<T extends User | Institution> {
 	readonly TOKEN_SECRET: string = process.env.TOKEN_SECRET || "tokensecret";
-	readonly TOKEN_EXPIRY: number = parseInt(process.env.TOKEN_EXPIRY) || 300; // 5 minutes
+	readonly ACCESS_TOKEN_EXPIRY: number =
+		parseInt(process.env.ACCESS_TOKEN_EXPIRY) || 1 * 60; // 1 minute
+	readonly REFRESH_TOKEN_EXPIRY: number =
+		parseInt(process.env.REFRESH_TOKEN_EXPIRY) || 5 * 60; // 5 minutes
 
 	async login(email: string, password: string, type: AuthTypeEnum): Promise<T> {
 		let query: SelectQueryBuilder<T>;
@@ -49,21 +54,27 @@ export class AuthHandler<T extends User | Institution> {
 		const payload = {
 			model: {
 				email: model.email,
+				id: model.id,
 			},
 		};
+
 		return {
-			auth: jwt.sign(payload, this.TOKEN_SECRET),
+			auth: jwt.sign(payload, this.TOKEN_SECRET, {
+				expiresIn: this.ACCESS_TOKEN_EXPIRY,
+			}),
+			refresh: jwt.sign(payload, this.TOKEN_SECRET, {
+				expiresIn: this.REFRESH_TOKEN_EXPIRY,
+			}),
 		};
 	}
 
 	validateToken(token: string) {
 		const isValid = jwt.verify(token, this.TOKEN_SECRET);
 		if (!isValid) throw new Exception(AuthException.INVALID_TOKEN);
-
-		const { iat, model } = jwt.decode(token) as TokenPayload;
+		const { model, exp } = jwt.decode(token) as TokenPayload;
 		const now = Date.now();
-		if (now < iat - this.TOKEN_EXPIRY)
-			throw new Exception(AuthException.TOKEN_EXPIRED);
+		const expired = now < exp;
+		if (expired) throw new Exception(AuthException.TOKEN_EXPIRED);
 		return model;
 	}
 }
