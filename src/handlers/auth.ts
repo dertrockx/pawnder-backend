@@ -3,7 +3,6 @@ import { AuthException, Exception, AuthTypeEnum } from "@constants";
 import { compare } from "bcrypt";
 import * as jwt from "jsonwebtoken";
 import randtoken from "rand-token";
-
 import { SelectQueryBuilder } from "typeorm";
 export interface SessionToken {
 	readonly auth: string;
@@ -72,7 +71,6 @@ export class AuthHandler<T extends User | Institution> {
 	validateToken(token: string) {
 		const isValid = jwt.verify(token, this.TOKEN_SECRET);
 		if (!isValid) throw new Exception(AuthException.INVALID_TOKEN);
-
 		const { model, exp } = jwt.decode(token) as TokenPayload;
 		const now = Date.now();
 		const expired = now < exp;

@@ -3,6 +3,7 @@ import { Request, Response, Router } from "express";
 import { AuthException, AuthTypeEnum } from "@constants";
 import { isAuthenticated, isAuthorized } from "@middlewares";
 import { Institution, User } from "@models";
+
 export const AuthEndpoint = Router();
 
 interface ReqBody {
