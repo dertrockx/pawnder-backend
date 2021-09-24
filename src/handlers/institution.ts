@@ -1,4 +1,4 @@
-import { getManager } from "typeorm";
+import { getManager, FindOneOptions } from "typeorm";
 import { Institution } from "@models";
 import { distanceToDegConverter } from "@utils";
 import { errors } from "@constants";
@@ -40,8 +40,13 @@ export class InstitutionHandler {
 		return institutions;
 	}
 
-	async getInstitution(id: number | string): Promise<Institution> {
-		const institution = await Institution.findOne(id);
+	async getInstitution(
+		id?: number | string,
+		options?: FindOneOptions<Institution>
+	): Promise<Institution> {
+		const institution = (await options)
+			? Institution.findOne(options)
+			: Institution.findOne(id);
 		if (!institution) throw new Error(errors.NOT_FOUND);
 		return institution;
 	}

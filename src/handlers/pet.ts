@@ -1,9 +1,9 @@
-import { Pet } from "@models";
+import { Pet, Photo, User, UserIgnoredPet } from "@models";
 import { AnimalTypeEnum, SexEnum, ActionEnum, errors } from "@constants";
-import { getRepository } from "typeorm";
-
-interface PetBody {
-	institutionId: number;
+import { getRepository, getManager, EntityManager } from "typeorm";
+import { distanceToDegConverter } from "@utils";
+export interface PetBody {
+	institutionId: number | string;
 	name: string;
 	weight: number;
 	height: number;
@@ -16,17 +16,72 @@ interface PetBody {
 	action: ActionEnum;
 }
 
+export interface Filters {
+	userId?: string | number;
+	animalType?: AnimalTypeEnum;
+	institutionId?: string | number;
+	nearby?: boolean;
+	location?: {
+		lat: number;
+		long: number;
+		distance: number;
+	};
+}
 export class PetHandler {
-	async getPets(institutionId?: number | string): Promise<Pet[]> {
+	// CHANGE: make all fields in filter required
+	async getPets(filters?: Filters): Promise<Pet[]> {
+		// query to do left join
+		// select pet.id from pet LEFT JOIN user_ignored_pet ON pet.id != user_ignored_pet.petId WHERE user_ignored_pet.userId = 4;
+		// const query = getRepository(Pet).createQueryBuilder("pet");
+		let pets: Pet[];
+		// let query = getManager().createQueryBuilder().select("*").from(Pet, "pet");
 		const query = getRepository(Pet).createQueryBuilder("pet");
-		if (institutionId)
-			query.where("pet.institutionId = :institutionId", { institutionId });
-		const pets = await query.getMany();
+
+		if (filters) {
+			const {
+				institutionId,
+				animalType,
+				userId,
+				location,
+				nearby = false,
+			} = filters;
+
+			if (nearby) {
+				const { lat, long, distance } = location;
+				const radius = distanceToDegConverter(distance);
+				query
+					.leftJoin("pet.institution", "institution")
+					.where(
+						"SQRT( POWER(locationLat - :centerLat, 2) + POWER(locationLong - :centerLong, 2) ) < :radius",
+						{
+							centerLat: lat,
+							centerLong: long,
+							radius,
+						}
+					);
+			}
+			if (userId) {
+				const subQuery = getManager()
+					.createQueryBuilder(UserIgnoredPet, "ignored")
+					.select("petId")
+					.where("ignored.userId = 4");
+				query.where(`pet.id NOT IN (${subQuery.getQuery()})`);
+			}
+			if (institutionId) {
+				query.andWhere("pet.institutionId = :institutionId", { institutionId });
+			}
+			if (animalType) {
+				query.andWhere("pet.animalType = :animalType", { animalType });
+			}
+		}
+
+		pets = await query.getMany();
 		return pets;
 	}
 
 	async getPet(id: number | string): Promise<Pet> {
 		const pet = await Pet.findOne(id);
+		if (!pet) throw new Error(errors.NOT_FOUND);
 		return pet;
 	}
 
@@ -40,7 +95,7 @@ export class PetHandler {
 	async update(id: number | string, options: Partial<PetBody>): Promise<Pet> {
 		const pet = await Pet.findOne(id);
 		if (!pet) throw new Error(errors.NOT_FOUND);
-		Object.assign(pet, options);
+		Object.assign(pet, { ...options });
 		await pet.save();
 		return pet;
 	}
@@ -48,14 +103,7 @@ export class PetHandler {
 	async delete(id: number | string): Promise<boolean> {
 		const pet = await Pet.findOne(id);
 		if (!pet) throw new Error(errors.NOT_FOUND);
-		return new Promise(async (resolve, reject) => {
-			try {
-				await pet.softRemove();
-				resolve(true);
-			} catch (err) {
-				console.log(err);
-				reject(false);
-			}
-		});
+		await pet.softRemove();
+		return true;
 	}
 }

@@ -1,17 +1,9 @@
 import { Response, Request, Router } from "express";
-import { StoryHandler } from "@handlers";
-import multer from "multer";
+import { StoryHandler, TagHandler } from "@handlers";
 
-import { imageFilter, files } from "@utils";
+import { files } from "@utils";
 import { errors } from "@constants";
-
-const storage = multer.diskStorage({
-	filename: (req, file, cb) => {
-		cb(null, `${Date.now()} - ${file.originalname}`);
-	},
-});
-
-const upload = multer({ storage, fileFilter: imageFilter });
+import { upload } from "@middlewares";
 
 export const StoryEndpoint = Router();
 
@@ -86,6 +78,7 @@ const createStory = async (
 			msg: "title, body, tags, and institutionId fields are required in body",
 		});
 	const handler = new StoryHandler();
+	const tagHandler = new TagHandler();
 	try {
 		let story = await handler.create(parseInt(institutionId), {
 			title,
@@ -98,6 +91,12 @@ const createStory = async (
 			public_id: "headlinePhoto",
 		});
 		story = await handler.setHeadlineUrl(story.id, result.secure_url);
+		const tagRegex = /[A-Za-z0-9]+ *[A-Za-z0-9]+/;
+		const newTags = await tagHandler.createTags(
+			story.id,
+			tags.split(",").map((tag) => tagRegex.exec(tag)[0])
+		);
+		Object.assign(story, { tags: newTags });
 		return res.status(201).json({ story });
 	} catch (err) {
 		console.log(err);
