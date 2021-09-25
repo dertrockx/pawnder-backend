@@ -7,7 +7,7 @@ import {
 	PhotoEndpoint,
 	ApplicationEndpoint,
 	AuthEndpoint,
-	UserEndpoint
+	UserEndpoint,
 	IgnoredEndpoint,
 } from "@endpoints";
 export const router = Router();
