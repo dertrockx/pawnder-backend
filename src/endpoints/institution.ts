@@ -2,7 +2,7 @@ import { Request, Response, Router } from "express";
 import { InstitutionHandler } from "@handlers";
 import { Institution } from "@models";
 import { errors, ModelException } from "@constants";
-
+import { isAuthenticated, isAuthorized } from "@middlewares";
 export const InstitutionEndpoint = Router();
 
 interface GetNearbyInstitutionsQuery {
@@ -88,7 +88,7 @@ const createInstitution = async (
 			locationLat: null,
 			locationLong: null,
 			contactNumber: null,
-			photoURL: null
+			photoURL: null,
 		});
 
 		return res.status(201).json({ institution });
@@ -96,10 +96,10 @@ const createInstitution = async (
 		console.log(error);
 		if (error.code === ModelException.INSTITUTION_ALREADY_EXISTS)
 			return res.status(400).json(error);
-			
+
 		return res.status(500).json({ msg: "Server error. Please contact admin" });
 	}
-}
+};
 
 // TODO: still need to validate and sanitize data sent to this endpoint
 
@@ -140,8 +140,16 @@ const deleteInstitution = async (req: Request, res: Response) => {
 	}
 };
 
-InstitutionEndpoint.get("/", getInstitutions);
+InstitutionEndpoint.get("/", isAuthenticated, getInstitutions);
 InstitutionEndpoint.get("/:id", getSingleInstitution);
 InstitutionEndpoint.post("/", createInstitution);
-InstitutionEndpoint.put("/:id", updateInstitution);
-InstitutionEndpoint.delete("/:id", deleteInstitution);
+InstitutionEndpoint.put(
+	"/:id",
+	[isAuthenticated, isAuthorized],
+	updateInstitution
+);
+InstitutionEndpoint.delete(
+	"/:id",
+	[isAuthenticated, isAuthorized],
+	deleteInstitution
+);

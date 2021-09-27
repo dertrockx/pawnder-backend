@@ -3,7 +3,7 @@ import { StoryHandler, TagHandler } from "@handlers";
 
 import { files } from "@utils";
 import { errors } from "@constants";
-import { upload } from "@middlewares";
+import { upload, isAuthenticated, isAuthorized } from "@middlewares";
 
 export const StoryEndpoint = Router();
 
@@ -157,6 +157,14 @@ const deleteStory = async (req: Request, res: Response) => {
 StoryEndpoint.get("/", getStories);
 StoryEndpoint.get("/:id", getStory);
 // the second argument is a middleware
-StoryEndpoint.post("/", upload.single("headlinePhoto"), createStory);
-StoryEndpoint.put("/:id", upload.single("headlinePhoto"), updateStory);
-StoryEndpoint.delete("/:id", deleteStory);
+StoryEndpoint.post(
+	"/",
+	[isAuthenticated, isAuthorized, upload.single("headlinePhoto")],
+	createStory
+);
+StoryEndpoint.put(
+	"/:id",
+	[isAuthenticated, isAuthorized, upload.single("headlinePhoto")],
+	updateStory
+);
+StoryEndpoint.delete("/:id", [isAuthenticated, isAuthorized], deleteStory);

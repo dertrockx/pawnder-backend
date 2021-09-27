@@ -49,7 +49,9 @@ export const isAuthorized = async (
 	const handler = new InstitutionHandler();
 	try {
 		const { email } = model;
-		await handler.getInstitution("", { where: { email } });
+		const institution = await handler.getInstitution("", { where: { email } });
+		if (institution) console.log(institution);
+		else console.log("no institution");
 	} catch (err) {
 		if (err.message === errors.NOT_FOUND)
 			return res.status(401).json({ msg: "Request unauthorized" });

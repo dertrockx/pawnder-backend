@@ -6,7 +6,7 @@ import {
 	PhotoOwnerEnum,
 } from "@constants";
 import { Request, Response, Router } from "express";
-import { upload } from "@middlewares";
+import { upload, isAuthenticated, isAuthorized } from "@middlewares";
 import { files, validRequiredFields } from "@utils";
 import { Photo } from "@models";
 
@@ -232,23 +232,28 @@ const deletePet = async (req: Request, res: Response) => {
 	}
 };
 
-PetEndpoint.get("/", getPets);
-PetEndpoint.get("/:id", getPet);
+PetEndpoint.get("/", isAuthenticated, getPets);
+PetEndpoint.get("/:id", [isAuthenticated, isAuthorized], getPet);
 PetEndpoint.post(
 	"/",
 	// upload.single("mainPhoto"),
 	// upload.array("photos", 4),
-	upload.fields([
-		{
-			name: "mainPhoto",
-			maxCount: 1,
-		},
-		{
-			name: "others",
-			maxCount: 4,
-		},
-	]),
+	[
+		isAuthenticated,
+		isAuthorized,
+		upload.fields([
+			{
+				name: "mainPhoto",
+				maxCount: 1,
+			},
+			{
+				name: "others",
+				maxCount: 4,
+			},
+		]),
+	],
+
 	createPet
 );
-PetEndpoint.put("/:id", updatePet);
-PetEndpoint.delete("/:id", deletePet);
+PetEndpoint.put("/:id", [isAuthenticated, isAuthorized], updatePet);
+PetEndpoint.delete("/:id", [isAuthenticated, isAuthorized], deletePet);
