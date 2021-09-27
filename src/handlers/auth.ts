@@ -18,9 +18,9 @@ export interface TokenPayload {
 export class AuthHandler<T extends User | Institution> {
 	readonly TOKEN_SECRET: string = process.env.TOKEN_SECRET || "tokensecret";
 	readonly ACCESS_TOKEN_EXPIRY: number =
-		parseInt(process.env.ACCESS_TOKEN_EXPIRY) || 1 * 60; // 1 minute
+		parseInt(process.env.ACCESS_TOKEN_EXPIRY) || 15 * 60; // 15 minutes
 	readonly REFRESH_TOKEN_EXPIRY: number =
-		parseInt(process.env.REFRESH_TOKEN_EXPIRY) || 5 * 60; // 5 minutes
+		parseInt(process.env.REFRESH_TOKEN_EXPIRY) || 30 * 60; // 30 minutes
 
 	async login(email: string, password: string, type: AuthTypeEnum): Promise<T> {
 		let query: SelectQueryBuilder<T>;
