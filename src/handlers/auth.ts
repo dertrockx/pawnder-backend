@@ -11,6 +11,7 @@ export interface SessionToken {
 
 export interface TokenPayload {
 	readonly model: User | Institution;
+	readonly type: AuthTypeEnum;
 	readonly iat: number; // issued at
 	readonly exp: number;
 }
@@ -18,9 +19,9 @@ export interface TokenPayload {
 export class AuthHandler<T extends User | Institution> {
 	readonly TOKEN_SECRET: string = process.env.TOKEN_SECRET || "tokensecret";
 	readonly ACCESS_TOKEN_EXPIRY: number =
-		parseInt(process.env.ACCESS_TOKEN_EXPIRY) || 1 * 60; // 1 minute
+		parseInt(process.env.ACCESS_TOKEN_EXPIRY) || 0.5 * 60; // 30 seconds
 	readonly REFRESH_TOKEN_EXPIRY: number =
-		parseInt(process.env.REFRESH_TOKEN_EXPIRY) || 5 * 60; // 5 minutes
+		parseInt(process.env.REFRESH_TOKEN_EXPIRY) || 1 * 60; // 1 minute
 
 	async login(email: string, password: string, type: AuthTypeEnum): Promise<T> {
 		let query: SelectQueryBuilder<T>;
@@ -50,12 +51,13 @@ export class AuthHandler<T extends User | Institution> {
 		return obj;
 	}
 
-	generateToken(model: T) {
+	generateToken(model: T, type: AuthTypeEnum) {
 		const payload = {
 			model: {
 				email: model.email,
 				id: model.id,
 			},
+			type,
 		};
 
 		return {
@@ -71,10 +73,10 @@ export class AuthHandler<T extends User | Institution> {
 	validateToken(token: string) {
 		const isValid = jwt.verify(token, this.TOKEN_SECRET);
 		if (!isValid) throw new Exception(AuthException.INVALID_TOKEN);
-		const { model, exp } = jwt.decode(token) as TokenPayload;
+		const { model, exp, type } = jwt.decode(token) as TokenPayload;
 		const now = Date.now();
 		const expired = now < exp;
 		if (expired) throw new Exception(AuthException.TOKEN_EXPIRED);
-		return model;
+		return { model, type };
 	}
 }
