@@ -28,7 +28,7 @@ export class Institution extends DefaultEntity {
 	description: string;
 
 	@Column({ nullable: true })
-	photoURL: string;
+	photoUrl: string;
 
 	@OneToMany(() => Pet, (pet) => pet.institution)
 	pets: Pet[];

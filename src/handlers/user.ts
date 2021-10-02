@@ -33,6 +33,14 @@ export class UserHandler {
         return user;
     }
 
+    async setPhotoUrl(id: number, url: string): Promise<User> {
+		const user = await User.findOne(id);
+		Object.assign(user, { photoUrl: url });
+
+		await user.save();
+		return user;
+	}
+
     async update(id: number | string, options: UserBody) {
         const user = await User.findOne(id);
         if (!user) throw new Error(errors.NOT_FOUND);

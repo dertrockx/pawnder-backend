@@ -66,6 +66,14 @@ export class InstitutionHandler {
 		return institution;
 	}
 
+	async setPhotoUrl(id: number, url: string): Promise<Institution> {
+		const institution = await Institution.findOne(id);
+		Object.assign(institution, { photoUrl: url });
+
+		await institution.save();
+		return institution;
+	}
+
 	async update(id: number | string, options: InstitutionBody) {
 		const institution = await Institution.findOne(id);
 		if (!institution) throw new Error(errors.NOT_FOUND);
