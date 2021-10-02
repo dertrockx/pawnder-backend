@@ -3,7 +3,8 @@ import { UserHandler } from "@handlers";
 import { errors } from "@constants";
 import { ActionEnum, AnimalTypeEnum, SexEnum } from '@constants';
 import { ModelException } from '@constants';
-import { files, validRequiredFields } from "@utils";
+import { files } from "@utils";
+import { upload } from "@middlewares";
 
 export const UserEndpoint = Router();
 
@@ -47,11 +48,21 @@ const getSingleUser = async (req: Request, res: Response) => {
 
 const updateUser = async (
 	req: Request<any, any, UserBody, any>,
-	res: Response) => {
+	res: Response
+) => {
 	const { id } = req.params;
+	const { file } = req;
 	const handler = new UserHandler();
 	try {
-		const user = await handler.update(id, req.body);
+		let user = await handler.update(id, req.body);
+
+		if (file) {
+			const result = await files.uploader.upload(file.path, {
+				folder: `/user/${id}`,
+				public_id: "avatarPhoto",
+			})
+			user = await handler.setPhotoUrl(id, result.secure_url);
+		}
 
 		return res.json({ user });
 	} catch (err) {
@@ -122,6 +133,6 @@ const createUser = async (req: Request<any, any, UserBody, any>, res: Response) 
 
 UserEndpoint.get('/', getAllUsers);        //api/0.1/user/
 UserEndpoint.get('/:id', getSingleUser);
-UserEndpoint.put('/:id', updateUser);
+UserEndpoint.put('/:id',  upload.single("avatarPhoto"), updateUser);
 UserEndpoint.delete('/:id', deleteUser);
 UserEndpoint.post('/', createUser);			//for signup

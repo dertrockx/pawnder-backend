@@ -2,6 +2,8 @@ import { Request, Response, Router } from "express";
 import { InstitutionHandler } from "@handlers";
 import { Institution } from "@models";
 import { errors, ModelException } from "@constants";
+import { files } from "@utils";
+import { upload } from "@middlewares";
 
 export const InstitutionEndpoint = Router();
 
@@ -108,9 +110,18 @@ const updateInstitution = async (
 	res: Response
 ) => {
 	const { id } = req.params;
+	const { file } = req;
 	const handler = new InstitutionHandler();
 	try {
-		const institution = await handler.update(id, req.body);
+		let institution = await handler.update(id, req.body);
+
+		if (file) {
+			const result = await files.uploader.upload(file.path, {
+				folder: `/institution/${id}`,
+				public_id: "avatarPhoto",
+			})
+			institution = await handler.setPhotoUrl(id, result.secure_url);
+		}
 
 		return res.json({ institution });
 	} catch (err) {
@@ -143,5 +154,5 @@ const deleteInstitution = async (req: Request, res: Response) => {
 InstitutionEndpoint.get("/", getInstitutions);
 InstitutionEndpoint.get("/:id", getSingleInstitution);
 InstitutionEndpoint.post("/", createInstitution);
-InstitutionEndpoint.put("/:id", updateInstitution);
+InstitutionEndpoint.put("/:id", upload.single("avatarPhoto"), updateInstitution);
 InstitutionEndpoint.delete("/:id", deleteInstitution);
