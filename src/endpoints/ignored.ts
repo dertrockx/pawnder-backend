@@ -1,7 +1,7 @@
 import { IgnoredPetHandler, IgnoredPetBody } from "handlers";
 import { Request, Response, Router } from "express";
 import { errors, ModelException } from "@constants";
-
+import { isAuthenticated } from "@middlewares";
 export const IgnoredEndpoint = Router();
 
 const create = async (
@@ -43,5 +43,5 @@ const list = async (req: Request, res: Response) => {
 	}
 };
 
-IgnoredEndpoint.post("/", create);
-IgnoredEndpoint.get("/", list);
+IgnoredEndpoint.post("/", [isAuthenticated], create);
+IgnoredEndpoint.get("/", [isAuthenticated], list);

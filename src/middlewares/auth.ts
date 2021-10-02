@@ -1,4 +1,4 @@
-import { AuthException, errors } from "@constants";
+import { AuthException, AuthTypeEnum, errors } from "@constants";
 import { AuthHandler } from "@handlers";
 import { Request, Response, NextFunction } from "express";
 import { Institution, User } from "@models";
@@ -6,6 +6,7 @@ import { InstitutionHandler } from "@handlers";
 
 interface CustomRequest extends Request {
 	model: User | Institution;
+	type: AuthTypeEnum;
 }
 
 export const isAuthenticated = (
@@ -24,8 +25,8 @@ export const isAuthenticated = (
 			message: "Access is denied",
 		});
 	try {
-		const model = handler.validateToken(token);
-		req.model = model;
+		const { model, type } = handler.validateToken(token);
+		Object.assign(req, { model, type });
 	} catch (error) {
 		return res.status(401).json(error);
 	}
@@ -49,7 +50,9 @@ export const isAuthorized = async (
 	const handler = new InstitutionHandler();
 	try {
 		const { email } = model;
-		await handler.getInstitution("", { where: { email } });
+		const institution = await handler.getInstitution("", { where: { email } });
+		if (institution) next();
+		else console.log("no institution");
 	} catch (err) {
 		if (err.message === errors.NOT_FOUND)
 			return res.status(401).json({ msg: "Request unauthorized" });
@@ -59,20 +62,24 @@ export const isAuthorized = async (
 	return next();
 };
 
-export const allowedMethods = (req: Request, res: Response, next: NextFunction) => {
+export const allowedMethods = (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
 	const allowedMethods = [
-    "OPTIONS",
-    "HEAD",
-    "CONNECT",
-    "GET",
-    "POST",
-    "PUT",
-    "DELETE",
-    "PATCH",
+		"OPTIONS",
+		"HEAD",
+		"CONNECT",
+		"GET",
+		"POST",
+		"PUT",
+		"DELETE",
+		"PATCH",
 	];
-	
+
 	if (!allowedMethods.includes(req.method)) {
 		return res.status(405).send(`${req.method} not allowed.`);
 	}
 	next();
-}
+};
