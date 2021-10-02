@@ -154,5 +154,5 @@ const deleteInstitution = async (req: Request, res: Response) => {
 InstitutionEndpoint.get("/", getInstitutions);
 InstitutionEndpoint.get("/:id", getSingleInstitution);
 InstitutionEndpoint.post("/", createInstitution);
-InstitutionEndpoint.put("/:id", updateInstitution);
+InstitutionEndpoint.put("/:id", upload.single("avatarPhoto"), updateInstitution);
 InstitutionEndpoint.delete("/:id", deleteInstitution);
