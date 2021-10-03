@@ -1,5 +1,5 @@
 import { Application, User, Pet } from "@models";
-import { getRepository } from "typeorm";
+import { getRepository, getManager } from "typeorm";
 import { errors, ApplicationStatusEnum } from "@constants";
 
 export interface ApplicationFilters {
@@ -16,10 +16,31 @@ export class ApplicationHandler {
 	async list(filters?: ApplicationFilters): Promise<Application[]> {
 		const { petId } = filters;
 		let applications: Application[];
-		const query = getRepository(Application).createQueryBuilder("application");
-		if (petId) query.where("application.petId = :petId", { petId });
+		const query = getManager()
+			.createQueryBuilder(Application, "a")
+			.select("a.id", "id")
+			.addSelect("a.createdAt", "createdAt")
+			.addSelect("a.updatedAt", "updatedAt")
+			.addSelect("a.petId", "petId")
+			.addSelect("a.status", "status")
+			.addSelect("u.firstName", "firstName")
+			.addSelect("u.lastName", "lastName")
+			.addSelect("u.middleName", "middleName")
+			.addSelect("u.middleName", "middleName")
+			.addSelect("u.email", "email")
+			.addSelect("u.contactNumber", "contactNumber")
+			.addSelect("u.photoUrl", "photoUrl")
+			.addSelect("u.locationLat", "locationLat")
+			.addSelect("u.locationLong", "locationLong")
+			.leftJoin(User, "u", "u.id = a.userId")
+			.groupBy("id");
+		// const query = getRepository(Application)
+		// 	.createQueryBuilder("application")
+		// 	.leftJoin(User, "user", "application.userId = user.id");
 
-		applications = await query.getMany();
+		if (petId) query.where("a.petId = :petId", { petId });
+
+		applications = await query.getRawMany();
 
 		return applications;
 	}
