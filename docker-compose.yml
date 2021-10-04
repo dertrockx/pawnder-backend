@@ -5,7 +5,7 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: "admin"
-      MYSQL_USER: "pawnder"
-      MYSQL_PASSWORD: "pawnder"
-      MYSQL_DATABASE: "pawnder"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-admin}"
+      MYSQL_USER: "${MYSQL_USERNAME:-pawnder}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD:-pawnder}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE:-pawnder}"
