@@ -1,4 +1,4 @@
-import { Pet, Photo, User, UserIgnoredPet } from "@models";
+import { Pet, Photo, User, UserIgnoredPet, Application } from "@models";
 import { AnimalTypeEnum, SexEnum, ActionEnum, errors } from "@constants";
 import { getRepository, getManager, EntityManager } from "typeorm";
 import { distanceToDegConverter } from "@utils";
@@ -64,8 +64,14 @@ export class PetHandler {
 				const subQuery = getManager()
 					.createQueryBuilder(UserIgnoredPet, "ignored")
 					.select("petId")
-					.where("ignored.userId = 4");
+					// .where("ignored.userId = :userId", { userId });
+					.where(`ignored.userId = ${userId}`);
+				const duplicateQuery = getManager()
+					.createQueryBuilder(Application, "application")
+					.select("petId")
+					.where(`application.userId = ${userId}`);
 				query.where(`pet.id NOT IN (${subQuery.getQuery()})`);
+				query.andWhere(`pet.id NOT IN (${duplicateQuery.getQuery()})`);
 			}
 			if (institutionId) {
 				query.andWhere("pet.institutionId = :institutionId", { institutionId });

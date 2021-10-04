@@ -113,7 +113,7 @@ const createPet = async (
 	const { files: photos, body } = req;
 
 	if (!photos) return res.status(400).json({ msg: "Files are required!" });
-
+	console.log(body);
 	// body validation
 	const requiredFields = [
 		"institutionId",

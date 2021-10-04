@@ -5,9 +5,14 @@
 Steps to run this project:
 
 1. Run `yarn` or `yarn install` command
-2. Run `docker-compose up -d` command
-3. Run `yarn schema:sync` command
-4. Copy `.env.example` into `.env` and ask [@dertrockx](https://github.com/dertrockx) for the credentials to our cloudinary account
+2. Copy `.env.example` into `.env` and ask [@dertrockx](https://github.com/dertrockx) for the ff. information
+
+- credentials to our cloudinary account
+- credentials for the database
+- configuration for refresh and auth token
+
+3. Run `docker-compose up -d` command
+4. Run `yarn schema:sync` command
 5. Run `yarn dev:server` command
 
 Steps to run for testing
