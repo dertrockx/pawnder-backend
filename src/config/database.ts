@@ -13,7 +13,6 @@ export const connection = () =>
 		logging: false,
 		dropSchema: false,
 
-		// TODO: Store db creds in a separate file e.g. a '.env' file
 		username: process.env.MYSQL_USERNAME || "pawnder",
 		password: process.env.MYSQL_PASSWORD || "pawnder",
 		database: process.env.MYSQL_DATABASE || "pawnder",
