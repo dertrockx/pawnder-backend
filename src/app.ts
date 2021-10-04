@@ -22,7 +22,10 @@ export class App {
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(morgan("dev"));
     this.app.use((req, res, next) => {
-      res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+      res.setHeader(
+        "Access-Control-Allow-Origin",
+        process.env.FRONTEND_URL || "http://localhost:3000"
+      );
       res.setHeader(
         "Access-Control-Allow-Methods",
         "GET,HEAD,OPTIONS,POST,PUT,DELETE"
