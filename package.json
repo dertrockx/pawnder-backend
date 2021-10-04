@@ -36,7 +36,7 @@
 		"typeorm": "0.2.37"
 	},
 	"scripts": {
-		"start": "ts-node -r tsconfig-paths/register src/index.ts",
+		"start": "ts-node --transpile-only -r tsconfig-paths/register src/index.ts",
 		"seed": "ts-node -r tsconfig-paths/register src/seed.ts",
 		"dev:server": "nodemon --watch './**/*.ts' --exec 'ts-node -r tsconfig-paths/register' src/index.ts",
 		"typeorm": "ts-node -r tsconfig-paths/register ./node_modules/.bin/typeorm",
