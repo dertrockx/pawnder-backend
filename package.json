@@ -10,8 +10,6 @@
 		"typescript": "^4.4.3"
 	},
 	"dependencies": {
-		"ts-node": "^10.2.1",
-		"typescript": "^4.4.3",
 		"@types/bcrypt": "^5.0.0",
 		"@types/cookie-parser": "^1.4.2",
 		"@types/express": "^4.17.13",
@@ -31,14 +29,17 @@
 		"mysql": "^2.14.1",
 		"rand-token": "^1.0.1",
 		"reflect-metadata": "^0.1.10",
+		"swagger-ui-express": "^4.4.0",
 		"ts-jest": "^27.0.5",
+		"ts-node": "^10.2.1",
 		"tsconfig-paths": "^3.11.0",
-		"typeorm": "0.2.37"
+		"typeorm": "0.2.37",
+		"typescript": "^4.4.3"
 	},
 	"scripts": {
 		"start": "ts-node --transpile-only -r tsconfig-paths/register src/index.ts",
 		"seed": "ts-node -r tsconfig-paths/register src/seed.ts",
-		"dev:server": "nodemon --watch './**/*.ts' --exec 'ts-node -r tsconfig-paths/register' src/index.ts",
+		"dev:server": "nodemon --watch src --exec 'ts-node -r tsconfig-paths/register' src/index.ts",
 		"typeorm": "ts-node -r tsconfig-paths/register ./node_modules/.bin/typeorm",
 		"schema:sync": "yarn typeorm schema:sync",
 		"docker": "docker exec -it pawnder-db bash",

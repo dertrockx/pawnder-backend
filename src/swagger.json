@@ -1,0 +1,253 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "description": "Sample API w/ swagger documentation",
+    "title": "Sample API"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8081/api/0.1",
+      "description": "The dev server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Users",
+      "description": "API for users in the system"
+    },
+    {
+      "name": "Auth",
+      "description": "API for auth-related requests"
+    }
+  ],
+  "paths": {
+    "/user/": {
+      "post": {
+        "tags": ["Users"],
+        "requestBody": {
+          "description": "User information",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User was created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "requestBody": {
+          "description": "User credentials",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "$ref": "#/components/schemas/AuthTypeEnum"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User logs in successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    },
+                    "token_expiry": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pet": {
+      "get": {
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/userIdParam"
+          }
+        ],
+        "tags": ["Pet"],
+        "summary": "Get all pets w/ filters",
+        "responses": {
+          "200": {
+            "description": "Returns a list of pets given filters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Pet"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "jwt": []
+          }
+        ]
+      }
+    }
+  },
+
+  "components": {
+    "securitySchemes": {
+      "jwt": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "parameters": {
+      "userIdParam": {
+        "name": "userId",
+        "in": "query",
+        "description": "User's ID",
+        "schema": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Request does not pass the authentication middleware",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/UnauthorizedRequest"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "UnauthorizedRequest": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "AuthTypeEnum": {
+        "type": "string",
+        "enum": ["USER", "INSTITUTION"]
+      },
+      "SexEnum": {
+        "type": "string",
+        "enum": ["m", "f"]
+      },
+      "ActionEnum": {
+        "type": "string",
+        "enum": ["adopt", "foster"]
+      },
+      "User": {
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "Pet": {
+        "properties": {
+          "institutionId": {
+            "type": "integer",
+            "uniqueItems": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "integer",
+            "format": "float32"
+          },
+          "height": {
+            "type": "integer",
+            "format": "float32"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "medicalHistory": {
+            "type": "string"
+          },
+          "animalType": {
+            "type": "string",
+            "enum": [
+              "dogs",
+              "cats",
+              "fish and aquariums",
+              "reptiles and amphibians",
+              "exotic pets",
+              "rabbits",
+              "rodents"
+            ]
+          },
+          "sex": {
+            "$ref": "#/components/schemas/SexEnum"
+          },
+          "action": {
+            "$ref": "#/components/schemas/ActionEnum"
+          }
+        }
+      }
+    }
+  }
+}
