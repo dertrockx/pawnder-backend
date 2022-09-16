@@ -33,7 +33,7 @@
 		"reflect-metadata": "^0.1.10",
 		"ts-jest": "^27.0.5",
 		"tsconfig-paths": "^3.11.0",
-		"typeorm": "0.2.37"
+		"typeorm": "0.3.8"
 	},
 	"scripts": {
 		"start": "ts-node --transpile-only -r tsconfig-paths/register src/index.ts",
